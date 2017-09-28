@@ -1,0 +1,77 @@
+@charset "utf-8";
+/* CSS Document 
+
+body{font-size:12px;font-family:"宋体";color: #000 ;margin:0;padding:0;}*/
+ul,dl,dd,h1,h2,h3,h4,h5,h6,form,p { padding:0; margin:0;}
+ul { list-style:none;}
+img { border:0px;}
+a {text-decoration:none;}
+a:link{text-decoration:none;}
+a:visited{text-decoration:none;}
+a:hover{text-decoration:none; list-style: none}
+a:active{text-decoration:none;}
+.clearfloat {clear:both;height:0;font-size: 1px;line-height: 0px;}
+
+
+/*新闻资讯*/
+.new_conter { font-size:12px;font-family:"宋体";color: #000 ;margin:auto; width:918px; height:auto; display: table; margin-top:30px;}
+.new_conter ul { margin:0; padding:0; list-style:none;}
+.new_conter ul li { float:left; width:280px; height:auto; margin-left:20px;}
+.new_conter ul li .newspic { width:280px; height:157px;}
+.new_conter ul li h3 { width:240px; line-height:20px; margin-left:20px; margin-top:10px; margin-bottom:10px;}
+.new_conter ul li h3 a { color:#000;}
+.new_conter ul li h3 :hover { color:#000;}
+.new_conter ul li p { width:240px; line-height:2; margin-left:20px;}
+
+.new_list {font-size:12px;font-family:"宋体";color: #000 ;margin:auto; width:918px; height:auto; display: table; margin-top:30px; margin-bottom:30px;}
+.new_list_top { float:left; width:916px; height:38px; border:solid 1px #a8c9cf; background:#e8f3f5;line-height:38px;}
+.new_list_top span { float:left; width:80px; height:38px; margin-left:20px; font-family:"微软雅黑"; font-weight:bold;}
+.new_list_top .lanmu { float:right; width:auto; height:38px; margin-right:20px;}
+
+.new_list_top .lanmu a { color:#000;}
+.new_list_top .lanmu a.c1 { color:#03F;}
+.new_list_top .lanmu a:hover { color:#03F;}
+
+.new_list_bottom { float:left; width:918px; height:auto; margin-top:20px;}
+.new_list_bottom ul { margin:0; padding:0; list-style:none;}
+.new_list_bottom ul li { float:left; width:430px; height:165px; margin-left:19px; border:solid 1px #e5e5e5; margin-top:20px;}
+.new_list_bottom ul li .new_list_pic { float:left; width:150px; height:150px; margin-left:7px; margin-top:7px;}
+
+.news_right { font-size:12px;font-family:"宋体";color: #000 ;float:right; width:240px; height:150px; margin-right:7px; margin-top:7px;}
+.news_right h2 { font-family:"微软雅黑"; font-size:14px;}
+.news_right h2 a { color:#000;}
+.news_right h2 a:hover { color:#09F;}
+.news_right p { line-height:2; margin-top:10px;}
+
+
+/*平台登录*/
+.denglubox { margin:auto; width:100%; height:1100px; background:url(../image/dlbj.jpg) no-repeat top center;}
+.denglu_conter { margin:auto; width:918px; height:1100px;}
+.list_kuai { float:left; width:915px; height:227px; background:url(../image/kuaibj.png) repeat-x; margin-top:30px;}
+.kuai_left { float:left; width:650px; height:175px; border-right:dashed 1px #CCCCCC; margin-top:26px;}
+.list_kuai_pic { float:left; width:325px; height:175px; margin-left:26px;}
+
+.miaoshu { float:right; width:250px; height:175px; margin-right:20px;font-family:"微软雅黑"}
+.miaoshu h2 { font-weight:bold; color:#09F;}
+.miaoshu ul { margin:0; padding:0; margin-top:10px;}
+.miaoshu ul li { width:250px; height:24px; line-height:24px;}
+
+.kuai_right { float:right; width:100px; height:175px; margin-top:26px;font-family:"微软雅黑"; font-weight:bold; margin-right:80px;}
+.ptdl_btn { float:left; width:100px; height:40px; line-height:40px; text-align:center; margin-top:14px;}
+.ptdl_btn a { display:block; color:#000;}
+.ptdl_btn a:hover { display:block; color:#FFF;}
+
+/*新闻单页内容*/
+.neirong { margin:auto; width:918px; height:auto; margin-top:30px;}
+.neirong_top { float:left; width:918px; height:100px;}
+.neirong_top h1 { font-family:"微软雅黑";}
+.biaoqian { float:left; width:918px; height:30px; line-height:30px; margin-top:30px;}
+.biaoqian span { float:right; color:#999;} 
+.biaoqian_1 { float:left; width:80px; height:30px; display:block; background:#09F; text-align:center; color:#fff;}
+.biaoqian_1 a { color:#fff;}
+.biaoqian_1 a:hover { color:#FFF;}
+
+.nr_xia { float:left; width:880px; height:auto; margin-left:19px; margin-top:30px;}
+.nr_xia p { text-indent:24px; line-height:3; margin-top:20px;}
+.nr_xia .pic_box { width:80%; margin:auto; margin-top:30px;}
+.pic_box p { text-align:center; line-height:2;}

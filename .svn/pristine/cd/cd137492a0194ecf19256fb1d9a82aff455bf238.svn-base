@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="      
+           http://www.springframework.org/schema/beans      
+           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd      
+           http://www.springframework.org/schema/context      
+           http://www.springframework.org/schema/context/spring-context-3.0.xsd  
+           http://www.springframework.org/schema/tx 
+           http://www.springframework.org/schema/tx/spring-tx-3.1.xsd   
+           http://www.springframework.org/schema/mvc      
+           http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+           http://www.springframework.org/schema/aop 
+           http://www.springframework.org/schema/aop/spring-aop-3.1.xsd">
+	
+	<!-- 启动扫描所有的controller -->
+	<context:component-scan base-package="com.wb.component.*.*.controller" />
+	
+	<!--
+		主要作用于@Controller,激活该模式 下面是一种简写形式,完全可以手动配置替代这种简写形式；
+		它会自动注册DefaultAnnotationHandlerMapping与AnnotationMethodHandlerAdapter
+		两个bean, 是spring MVC为@Controllers分发请求所必须的
+	-->
+	<mvc:annotation-driven />
+	
+	<!-- 国际化支持 -->
+    <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+		<property name="basenames">
+			<list>
+				<value>com/wb/config/propertiesMap</value>
+				<value>com/wb/config/messages</value>
+			</list>
+         </property>
+	</bean> 
+
+	<!--
+		配置js,css等静态文件直接映射到对应的文件夹,不被DispatcherServlet处理 mapping 
+		WebRoot里面的静态文件位置目录 location 访问地址
+		<mvc:default-servlet-handler/>
+	-->
+	<mvc:resources location="/plugins/"  mapping="/plugins/**" />
+	<mvc:resources location="/script/"   mapping="/script/**" />
+	<mvc:resources location="/style/"    mapping="/style/**" />
+	<mvc:resources location="/html/"    mapping="/html/**" />
+	 
+	<!--
+		配置/WEB-INF/views/目录里面的jsp文件不被DispatcherServlet处理,可以直接通过浏览器访问。
+		view-name  /WEB-INF/view/里面的jsp文件名(不许后缀即可) path 访问地址
+	-->
+	<mvc:view-controller path="/" view-name="login/login" />
+
+	<!--JSP页面解析器,当Controller返回XXX字符串时,先通过拦截器,然后该类就会在/WEB-INF/view/目录下,查找XXX.jsp文件-->
+	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="viewClass" value="org.springframework.web.servlet.view.JstlView"></property>
+		<property name="prefix"    value="/WEB-INF/view/"></property>
+		<property name="suffix"    value=".jsp"></property>
+	</bean>
+	
+	<!-- 拦截器配置 -->
+	<mvc:interceptors>
+	<!-- 网页版拦截器配置 -->
+	<mvc:interceptor>
+   		<mvc:mapping path="/supervisory/**"/>
+   		<bean class="com.wb.framework.interceptor.OempComputerInterceptor">
+   			<property name="allowUrls">  
+	            <list>
+	            	<value>/supervisory/asyn/register</value>
+	            	<!-- 账号注册请求 -->
+					<value>/supervisory/asyn/register</value>
+					<!-- 登陆请求 -->
+					<value>/supervisory/asyn/loginPlatform</value>
+					<!-- 更改密码请求 -->
+					<value>/supervisory/asyn/pwdModify</value>
+					<!-- 注册账号查重请求 -->
+					<value>/supervisory/asyn/checkTelphone</value>
+					<!-- 验证码发送请求 -->
+					<value>/supervisory/asyn/getCheckCode</value>
+					<!-- 登陆界面 -->
+					<value>/supervisory/forward/gotoLogin</value>
+					<!-- 账号密码找回验证身份界面 -->
+					<value>/supervisory/forward/gotoPwdReset</value>
+					<!-- 账号密码找回界面 -->
+					<value>/supervisory/forward/gotoPwdGetBack</value>
+					<!-- 用户注册界面 -->
+					<value>/supervisory/forward/gotoMemberRegister</value>
+					<!-- 管理平台使用手册 -->
+					<value>/supervisory/forward/gotoHelp</value>
+					<!-- 体验账号登陆 -->
+					<value>/supervisory/forward/demoLogin</value>
+					<!-- 客户评价 -->
+					<value>/supervisory/forward/gotoFeedBackManage</value>
+					<!-- 保存业务 -->
+					<value>/supervisory/forward/saveServices</value>
+					<!-- 获取客户评价列表 -->
+					<value>/supervisory/asyn/getOrgProNodeList</value>
+					<!-- 客户评价保存 -->
+					<value>/supervisory/asyn/saveFeedBack</value>
+					<value>/supervisory/asyn/deleteService</value>
+					<value>/supervisory/asyn/saveNodeAfter</value>
+					<!-- 发送短信的模板 -->
+					<value>/supervisory/asyn/gotoSMSTemplate</value>
+	            </list>
+         	</property>
+   		</bean>
+   	</mvc:interceptor>
+   	
+	<!-- 移动端版拦截器配置 -->
+   	<mvc:interceptor>
+   		<mvc:mapping path="/monitored/**"/>
+   		<bean class="com.wb.framework.interceptor.OempMobileInterceptor">
+   			<property name="allowUrls">
+	            <list>
+	            	<!-- 登陆 -->
+					<value>/monitored/asyn/mointorAuthenticate</value>
+					<!-- 发送短信-->
+					<value>/monitored/asyn/mointorMsg</value>
+					<!-- 注册 -->
+					<value>/monitored/asyn/mointorRegistCom</value>
+					<!-- 重置密码 -->
+					<value>/monitored/asyn/mointorPasswordReset</value>
+					<!-- APP下载 -->
+					<value>/monitored/asyn/downloadOempApk</value>
+					<!-- 理财金服登录写入DeviceToken -->
+					<value>/monitored/asyn/loginAndSaveDeviceToken</value>
+					<!-- 登录APP时推送欠费信息 -->
+					<value>/monitored/asyn/isOver</value>
+					<!-- IOSAPP单台设备更新所有欠费未读消息为已读 -->
+					<value>/monitored/asyn/updateMessage</value>
+					<!-- 获取消息列表 -->
+					<value>/monitored/asyn/getAllMessage</value>
+					<!-- 将消息状态从未读变为已读消息 -->
+					<value>/monitored/asyn/readMessage</value>
+	            </list>
+         	</property>
+   		</bean>
+   	</mvc:interceptor>
+    </mvc:interceptors>
+	
+	<!-- 日期转换注解支持 -->
+    <bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean"></bean>
+
+    <bean id="dateFormatter" class="org.springframework.format.datetime.DateFormatter"> 
+        <property name="pattern" value="yyyy-MM-dd HH:mm:ss"></property> 
+    </bean>
+	
+	<!-- SpringMVC上传文件时,需要配置MultipartResolver处理器 --> 
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"> 
+        <!-- 指定所上传文件的总大小不能超过1024KB。注意maxUploadSize属性的限制不是针对单个文件,而是所有文件的容量之和 --> 
+        <property name="maxUploadSize" value="102400000"/> 
+    </bean> 
+     
+    <!-- SpringMVC在超出上传文件限制时,会抛出org.springframework.web.multipart.MaxUploadSizeExceededException --> 
+    <!-- 该异常是SpringMVC在检查上传的文件信息时抛出来的,而且此时还没有进入到Controller方法中 --> 
+    <bean id="exceptionResolver" class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver"> 
+        <property name="exceptionMappings"> 
+            <props> 
+                <!-- 遇到MaxUploadSizeExceededException异常时,自动跳转到/WEB-INF/jsp/error_fileupload.jsp页面 --> 
+                <prop key="org.springframework.web.multipart.MaxUploadSizeExceededException">/index.html</prop> 
+            </props> 
+        </property> 
+    </bean>
+    
+    
+    <!-- 注入日志服务
+    <bean id="logService" class="com.jf.framework.springInterceptor.LogService"></bean>
+    <aop:config>
+	 <aop:aspect id="myAspect" ref="logService">
+	  <aop:pointcut expression="execution(* com.jf.framework.*.controller.*.*(..))" id="logPointCut"/>
+	  <aop:before method="logAll" pointcut-ref="logPointCut"/>
+	 </aop:aspect>
+	</aop:config>
+	-->
+</beans>
+           

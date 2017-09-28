@@ -1,0 +1,38 @@
+#jdbc settings
+#
+workplatform.jdbc.url=jdbc\:mysql\://120.25.223.132\:3306/accounting
+workplatform.jdbc.driver=com.mysql.jdbc.Driver
+workplatform.jdbc.username=wb
+workplatform.jdbc.password=weibao2014
+
+#workplatform.jdbc.url=jdbc\:mysql\://127.0.0.1\:3306/accounting
+#workplatform.jdbc.driver=com.mysql.jdbc.Driver
+#workplatform.jdbc.username=root
+#workplatform.jdbc.password=shzmysql0216
+
+#activiti.jdbc.url=jdbc\:mysql\://120.25.223.132\:3306/wbactiviti
+#activiti.jdbc.url=jdbc\:mysql\://127.0.0.1\:3306/wbactiviti
+#activiti.jdbc.driver=com.mysql.jdbc.Driver
+#activiti.jdbc.username=wb
+#activiti.jdbc.password=weibao2014
+
+#c3p0 setttings
+c3p0.initialPoolSize=5
+c3p0.maxPoolSize=100
+c3p0.minPoolSize=5
+c3p0.maxIdleTime=60
+#hibernate settings
+hibernate.show_sql=false
+hibernate.format_sql=true
+hibernate.generate_statistics=true
+hibernate.cache.use_second_level_cache=true
+hibernate.cache.use_query_cache=true
+hibernate.jdbc.batch_size=50
+hibernate.hbm2ddl.auto=update
+MNT_LOGO_URL=MNTLOGO
+ACC_OEMP_URL=http\://120.25.223.132\:8380/Oemp
+ACC_BILL_URL=http\://120.25.223.132\:8280/Accounting
+ACC_ROLER_URL=http\://120.25.223.132\:8280/Accounting
+ACC_HESSIAN_URL=http\://192.168.30.88
+ACC_HESSIAN_PORT=8280
+ACC_HESSIAN_AFTERSTR=/Accounting/loginHessian.jspx

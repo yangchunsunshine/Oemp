@@ -1,0 +1,213 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>欢迎光临微宝！</title>
+<link href="css/style.css" rel="stylesheet" type="text/css"/>
+<link href="css/syle_new.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="js/bd.js"></script>
+</head>
+
+<body>
+<!--******************************************top开始******************************************-->
+<div class="top">
+  <div class="header">
+        <a href="http://www.weibaobeijing.com"><img src="image/header_logo.png" style=" float:left;margin-top:13px;" width="120" /></a>
+        <div class="top_01">
+        	<a><img src="image/top_ico_007.png"/>热线：4000-110-543</a>	
+        	<a><img src="image/top_ico_006.png"/>QQ群：292577932</a>	
+        	<a href="http://dlsw.baidu.com/sw-search-sp/soft/9d/14744/ChromeStandalone_46.0.2490.86_Setup.1447296650.exe"><img src="image/top_ico_005.png"/>下载google浏览器</a>	
+        	<a href="se_Technical.html"><img src="image/top_ico_004.png"/>视频教材</a>	
+        	<a href="microbankManual.doc" class="ico_download"><img src="image/top_ico_003.png"/>下载操作手册</a>	
+        	<a href="sc_jobs.html"><img src="image/top_ico_002.png"/>招聘英才</a>	
+        	<a href="sc_cooperation.html"><img src="image/top_ico_001.png"/>合作伙伴</a>	
+        	<a href="sc_Investment.html"><img src="image/top_ico_008.png"/>投资微宝</a>	
+        	<a href="news_3.html"><img src="image/top_ico_009.png"/>行业动态</a>	
+        </div>
+        <div class="top_02">
+            <div class="main_menu">
+                <ul>
+                    <li><a href="index.html" class="menu_hover">首页</a></li>
+                    <li><a href="sc_Online.html">在线财务</a></li>
+                    <li><a href="sc_Generation.html">代小宝</a></li>
+                    <li><a href="http://www.weibaochuangye.com">服务宝</a></li>
+                    <li><a href="sc_Insales.html">进销存</a></li>
+                    <li><a href="sc_contact.html">联系我们</a></li>
+                    <li><a href="sc_Aboutus.html">关于微宝</a></li>
+                </ul>
+            </div> 
+            <div class="head_button">
+            	<a href="sc_land.html" class="button_l">登录</a>
+            	<a href="sc_land.html" class="button_d">立即免费体验</a>
+            	<a href="sc_land.html" class="button_z">立即免费注册</a>
+            </div>          
+        </div>
+    </div>
+</div>
+<!--******************************************top结束******************************************-->
+<div class="main_content" style="margin-top:85px;">
+	<div class="sc_img">
+    	<div class="title_grey">
+            视频攻略
+        	<a href="se_Technical.html" class="sc_more">返回</a>
+        </div>
+    </div>
+    <div class="sc_img" id="sc_img">
+  		<table class="table_video" width="100%" border="0" cellpadding="0" cellspacing="0">
+        	<tr>
+            	<td width="210" align="left"><a href="video/1.mp4"  ><img src="image/video_01.jpg"/></a></td>
+            	<td align="left">
+                	<h3>分类：用户注册 ，创建账簿，账簿日期介绍</h3>
+                	<h3>时长：41秒</h3>
+                	<h3>时间：2015-11-17</h3>
+                	<h3>人气：97</h3>
+                </td>
+            </tr>
+        	<tr>
+            	<td width="210" align="left"><a href="video/2.mp4"  ><img src="image/video_01.jpg"/></a></td>
+            	<td align="left">
+                	<h3>分类：添加或切换企业，搜索企业，企业名称的修改，删除</h3>
+                	<h3>时长：44秒</h3>
+                	<h3>时间：2015-11-17</h3>
+                	<h3>人气：97</h3>
+              </td>
+            </tr>
+        	<tr>
+            	<td width="210" align="left"><a href="video/3.mp4"  ><img src="image/video_01.jpg"/></a></td>
+            	<td align="left">
+                	<h3>分类：添加账簿，添加账簿权限</h3>
+                	<h3>时长：41秒</h3>
+                	<h3>时间：2015-11-17</h3>
+                	<h3>人气：97</h3>
+                </td>
+            </tr>
+        	<tr>
+            	<td width="210" align="left"><a href="video/5.mp4"  ><img src="image/video_01.jpg"/></a></td>
+            	<td align="left">
+                	<h3>分类：记账凭证  删除分录  增加分录功能</h3>
+                	<h3>时长：39秒</h3>
+                	<h3>时间：2015-11-17</h3>
+                	<h3>人气：97</h3>
+                </td>
+            </tr>
+        	<tr>
+            	<td width="210" align="left"><a href="video/4.mp4"   ><img src="image/video_01.jpg"/></a></td>
+            	<td align="left">
+                	<h3>分类：打印凭证</h3>
+                	<h3>时长：37秒</h3>
+                	<h3>时间：2015-11-17</h3>
+                	<h3>人气：97</h3>
+                </td>
+            </tr>
+        	<tr>
+            	<td width="210" align="left"><a href="video/6.mp4"  ><img src="image/video_01.jpg"/></a></td>
+            	<td align="left">
+                	<h3>分类：查询凭证，删除凭证，修改凭证，保存凭证模板及凭证模板的使用</h3>
+                	<h3>时长：52秒</h3>
+                	<h3>时间：2015-11-17</h3>
+                	<h3>人气：97</h3>
+                </td>
+            </tr>
+        	<tr>
+            	<td width="210" align="left"><a href="video/7.mp4"  ><img src="image/video_01.jpg"/></a></td>
+            	<td align="left">
+                	<h3>分类：凭证的打印功能，导出功能</h3>
+                	<h3>时长：34秒</h3>
+                	<h3>时间：2015-11-17</h3>
+                	<h3>人气：97</h3>
+                </td>
+            </tr>
+        	<tr>
+            	<td width="210" align="left"><a href="video/8-10.mp4"  ><img src="image/video_01.jpg"/></a></td>
+            	<td align="left">
+                	<h3>分类：明细账连续打印、科目余额表子级科目查询、报表导出</h3>
+                	<h3>时长：58秒</h3>
+                	<h3>时间：2015-11-17</h3>
+                	<h3>人气：97</h3>
+                </td>
+            </tr>        	
+        	<tr>
+            	<td width="210" align="left"><a href="video/11.mp4"  ><img src="image/video_01.jpg"/></a></td>
+            	<td align="left">
+                	<h3>分类：结转损益  结账 （反结账到上期）</h3>
+               	  <h3>时长：38秒</h3>
+                	<h3>时间：2015-11-17</h3>
+                	<h3>人气：97</h3>
+              </td>
+            </tr>
+        	<tr>
+            	<td width="210" align="left"><a href="video/12-13.mp4"  ><img src="image/video_01.jpg"/></a></td>
+            	<td align="left">
+                	<h3>分类：科目、辅助核算的增加、删除、修改，文件导出路径</h3>
+                	<h3>时长：58秒</h3>
+                	<h3>时间：2015-11-17</h3>
+                	<h3>人气：97</h3>
+                </td>
+            </tr>
+        	<tr>
+            	<td width="210" align="left"><a href="video/14.mp4"  ><img src="image/video_01.jpg"/></a></td>
+            	<td align="left">
+                	<h3>分类：期初余额的导入  导出</h3>
+                	<h3>时长：45秒</h3>
+                	<h3>时间：2015-11-17</h3>
+                	<h3>人气：97</h3>
+                </td>
+           </tr>
+        </table>
+    </div>
+</div>
+<div id="div_mobil">
+	<div class="mobil_top"></div>
+	<ul>
+		<li style="border-right:1px dashed #e5e5e5; ">
+			<p>扫码安装<span>理财金服手机端</span></p>
+			<p><img src="image/img_LC.jpg" style="width:63%"/></p>
+		</li>
+		<li style="border-right:1px dashed #e5e5e5; ">
+			<p>扫码安装<span>微宝财务手机端</span></p>
+			<p><img src="image/img_WB.png" style="width:63%"/></p>
+		</li>
+		<li>
+			<p>扫码安装<span>代小宝手机端</span></p>
+			<p><img src="image/img_DXB.png" style="width:63%"/></p>
+		</li>
+	</ul>
+</div>
+<div class="foot">
+	<div class="foot_content">
+        <div class="foot_p">
+            <p>
+                <ul>
+                    <li><a href="sc_contact.html">联系我们</a>　|　</li>
+                    <li><a href="sc_Aboutus.html">关于微宝</a></li>
+                </ul>
+            </p><br/><br/>
+            <p>CopyRight © 2014 Microbank 版权所有 北京微宝网络科技有限公司</p>
+            <p>京ICP备15007047号    京公网安备</p>
+        </div>
+        <table cellpadding="0" cellspacing="0" border="0" style=" float:right;">
+       		<tr>
+            	<td width="50">客服01-</td>
+            	<td width="140">微信：honeyback2010</td>
+            	<td>qq：703709580</td>
+            </tr>
+       		<tr>
+            	<td width="50">客服02-</td>
+            	<td width="140">微信：wodepet</td>
+            	<td>qq：339070788</td>
+            </tr>
+       		<tr>
+            	<td width="50">客服03-</td>
+            	<td width="140">微信：vivi139234553</td>
+            	<td>qq：670425067</td>
+            </tr>
+       		<tr>
+            	<td width="50">客服04-</td>
+            	<td width="140">微信：lz13026270777</td>
+            	<td>qq：170338171</td>
+            </tr>
+        </table>
+    </div>
+</div>
+</body>
+</html>

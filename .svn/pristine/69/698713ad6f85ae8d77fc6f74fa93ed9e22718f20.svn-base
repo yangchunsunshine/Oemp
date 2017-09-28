@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>欢迎光临微宝！</title>
+<link href="css/style.css" rel="stylesheet" type="text/css"/>
+<link href="css/syle_new.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="js/bd.js"></script>
+</head>
+
+<body>
+<!--******************************************top开始******************************************-->
+<div class="top">
+  <div class="header">
+        <a href="http://www.weibaobeijing.com"><img src="image/header_logo.png" style=" float:left;margin-top:13px;" width="120" /></a>
+        <div class="top_01">
+        	<a><img src="image/top_ico_007.png"/>热线：4000-110-543</a>	
+        	<a><img src="image/top_ico_006.png"/>QQ群：292577932</a>	
+        	<a href="http://dlsw.baidu.com/sw-search-sp/soft/9d/14744/ChromeStandalone_46.0.2490.86_Setup.1447296650.exe"><img src="image/top_ico_005.png"/>下载google浏览器</a>	
+        	<a href="se_Technical.html"><img src="image/top_ico_004.png"/>视频教材</a>	
+        	<a href="microbankManual.doc" class="ico_download"><img src="image/top_ico_003.png"/>下载操作手册</a>	
+        	<a href="sc_jobs.html"><img src="image/top_ico_002.png"/>招聘英才</a>	
+        	<a href="sc_cooperation.html"><img src="image/top_ico_001.png"/>合作伙伴</a>	
+        	<a href="sc_Investment.html"><img src="image/top_ico_008.png"/>投资微宝</a>	
+        	<a href="news_3.html"><img src="image/top_ico_009.png"/>行业动态</a>	
+        </div>
+        <div class="top_02">
+            <div class="main_menu">
+                <ul>
+                    <li><a href="index.html" class="menu_hover">首页</a></li>
+                    <li><a href="sc_Online.html">在线财务</a></li>
+                    <li><a href="sc_Generation.html">代小宝</a></li>
+                    <li><a href="http://www.weibaochuangye.com">服务宝</a></li>
+                    <li><a href="sc_Insales.html">进销存</a></li>
+                    <li><a href="sc_contact.html">联系我们</a></li>
+                    <li><a href="sc_Aboutus.html">关于微宝</a></li>
+                </ul>
+            </div> 
+            <div class="head_button">
+            	<a href="sc_land.html" class="button_l">登录</a>
+            	<a href="sc_land.html" class="button_d">立即免费体验</a>
+            	<a href="sc_land.html" class="button_z">立即免费注册</a>
+            </div>          
+        </div>
+    </div>
+</div>
+<!--******************************************top结束******************************************-->
+<div class="sc_banner_04" style="margin-top:65px;"></div>
+<div class="menu_about">
+	<ul>
+    	<li><a href="sc_Aboutus.html">关于微宝</a></li>
+    	<li><a href="sc_companys.html">子公司</a></li>
+    	<li class="about_hover"><a href="sc_leaders.html">管理层介绍</a></li>
+    	<li><a href="sc_contact.html">联系我们</a></li>
+    </ul>
+</div>
+<div class="main_content" style="width:918px;margin:0px auto; margin-bottom:20px;"><b style="border-radius:7px;background-color:#0080ff;color:#fff;">　 管理团队 　</b></div>
+
+
+<div class="main_content" style="width:918px;height:400px; margin:0px auto; margin-bottom:150px;">
+    <div class="company_leader" style=" background:url(image/img_leader01.jpg) no-repeat center;">
+    	<b>王兆亭</b>
+    	<h4>北京微宝网络科技有限公司董事长兼<br/>CEO | 微宝网络创始人</h4>
+    </div>
+    <div class="company_leader" style=" background:url(image/img_leader02.jpg) no-repeat center;margin:0px 30px 0px;">
+    	<b>王艳福</b>
+    	<h4>北京微宝网络科技有限公司副总裁<br/>微宝网络联合创始人</h4>
+    </div>
+    <div class="company_leader" style=" background:url(image/img_leader03.jpg) no-repeat center;">
+    	<b>王绍伟</b>
+    	<h4>北京微宝网络科技有限公司副总裁<br/>微宝网络联合创始人</h4>
+    </div>
+</div>
+
+<div class="foot">
+	<div class="foot_content">
+        <div class="foot_p">
+            <p>
+                <ul>
+                    <li><a href="sc_contact.html">联系我们</a>　|　</li>
+                    <li><a href="sc_Aboutus.html">关于微宝</a></li>
+                </ul>
+            </p><br/><br/>
+            <p>CopyRight © 2014 Microbank 版权所有 北京微宝网络科技有限公司</p>
+            <p>京ICP备15007047号    京公网安备</p>
+        </div>
+        <table cellpadding="0" cellspacing="0" border="0" style=" float:right;">
+       		<tr>
+            	<td width="50">客服01-</td>
+            	<td width="140">微信：honeyback2010</td>
+            	<td>qq：703709580</td>
+            </tr>
+       		<tr>
+            	<td width="50">客服02-</td>
+            	<td width="140">微信：wodepet</td>
+            	<td>qq：339070788</td>
+            </tr>
+       		<tr>
+            	<td width="50">客服03-</td>
+            	<td width="140">微信：vivi139234553</td>
+            	<td>qq：670425067</td>
+            </tr>
+       		<tr>
+            	<td width="50">客服04-</td>
+            	<td width="140">微信：lz13026270777</td>
+            	<td>qq：170338171</td>
+            </tr>
+        </table>
+    </div>
+</div>
+</body>
+</html>

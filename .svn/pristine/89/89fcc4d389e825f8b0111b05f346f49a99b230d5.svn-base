@@ -1,0 +1,1073 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+"http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="supervisory">
+
+	<select id="getLastVersion" resultClass="java.lang.String">
+		select version from biz_monitorApp WHERE id = (select max(id) from biz_monitorApp)
+	</select>
+	
+	<select id="downLoadOempApk" resultClass="com.wb.model.entity.mobile.BizAppDownLoad">
+		select * from biz_monitorApp WHERE id = (select max(id) from biz_monitorApp)
+	</select>
+
+	<!-- 员工在线情况查询明细 -->
+	<typeAlias alias="clerkListForMonitor" type="com.wb.model.pojo.computer.SuperintendentDto"/>
+	<select id="findClerkListForMonitor" resultClass="clerkListForMonitor" parameterClass="com.wb.model.pojo.computer.SuperintendentQueryForm">
+		select * from (
+			SELECT bm.id AS clerkId,
+			mdp.partName AS partName,
+			mdp.idPath, 
+			bm.name AS clerkName,
+			bm.telphone AS clerkTel,
+			bm.email AS clerkEmail,
+			bm.lastStamp AS lastLogin,
+			(CASE WHEN TIMESTAMPDIFF(SECOND,bm.lastStamp,now()) > #arg1# OR TIMESTAMPDIFF(SECOND,mmb.stamp,now()) > #arg1# THEN #arg2# ELSE #arg3# END) AS clerkState 
+			FROM biz_member bm 
+			INNER JOIN mnt_mngandusers mmd ON bm.id=mmd.userMemberId
+			INNER JOIN mnt_member mmb ON mmb.id = mmd.mntMemberId
+			INNER JOIN mnt_departmentInfo mdp ON bm.departmentId = mdp.id
+			WHERE mmd.mntMemberId=#mngId#  AND mmd.state = #isAccept#
+			<isNotEqual property="clerkName" compareValue="-1"> AND bm.name like '%$clerkName$%' </isNotEqual>
+			<isNotEmpty property="clerkTel">  AND bm.telphone like '%$clerkTel$%' </isNotEmpty>
+			ORDER BY clerkState DESC, mdp.idPath LIMIT #startRow#,#endRow#
+		) x
+		<isNotEqual property="clerkState" compareValue="-1"> WHERE clerkState = #clerkState# </isNotEqual>
+	</select>
+	<!-- 员工在线情况查询(总数) -->
+	<select id="countClerkListForMonitor" resultClass="com.wb.model.pojo.computer.TrendDataDto" parameterClass="com.wb.model.pojo.computer.SuperintendentQueryForm">
+		SELECT 
+		count(*) AS count,
+		sum(clerkState) AS summary1 
+		FROM (
+			SELECT bm.id AS clerkId,
+			mdp.partName AS partName,
+			mdp.idPath, 
+			bm.name AS clerkName,
+			bm.telphone AS clerkTel,
+			bm.email AS clerkEmail,
+			bm.lastStamp AS lastLogin,
+			(CASE WHEN TIMESTAMPDIFF(SECOND,bm.lastStamp,now()) > #arg1# OR TIMESTAMPDIFF(SECOND,mmb.stamp,now()) > #arg1# THEN #arg2# ELSE #arg3# END) AS clerkState 
+			FROM biz_member bm 
+			INNER JOIN mnt_mngandusers mmd ON bm.id=mmd.userMemberId
+			INNER JOIN mnt_member mmb ON mmb.id = mmd.mntMemberId
+			INNER JOIN mnt_departmentInfo mdp ON bm.departmentId = mdp.id
+			WHERE mmd.mntMemberId=#mngId#  AND mmd.state = #isAccept#
+			<isNotEqual property="clerkName" compareValue="-1"> AND bm.name like '%$clerkName$%' </isNotEqual>
+			<isNotEmpty property="clerkTel">  AND bm.telphone like '%$clerkTel$%' </isNotEmpty>
+		) x
+		<isNotEqual property="clerkState" compareValue="-1"> WHERE clerkState = #clerkState# </isNotEqual>
+	</select>
+	
+	<!-- 被监控会计查询明细 -->
+	<typeAlias alias="clerkQueryListForMonitor" type="com.wb.model.pojo.computer.ClerkManagementDto"/>
+	<select id="findClerkQueryListForMonitor" resultClass="clerkQueryListForMonitor" parameterClass="com.wb.model.pojo.computer.SuperintendentQueryForm">
+		SELECT 
+		DISTINCT mdp.partName AS partName,bm.id,
+		mmd.id AS associateId,bm.name AS clerkName,
+		bm.telphone AS clerkTel,bm.email AS clerkEmail,
+		mmd.stamp AS queryTime,mmd.state AS queryState
+		FROM biz_member bm 
+		INNER JOIN mnt_mngandusers mmd ON bm.id=mmd.userMemberId 
+		<isNotEqual property="clerkState" compareValue="-1"> AND mmd.state = #clerkState#</isNotEqual>
+		<isEqual    property="clerkState" compareValue="-1"> AND ( mmd.state = #arg1# or mmd.state = #arg2# or mmd.state = #arg3# )</isEqual>
+		LEFT JOIN mnt_departmentInfo mdp ON (mdp.id = bm.departmentId AND (mdp.idPath like CONCAT((select idPath from mnt_departmentInfo WHERE id = #partId#),'-%') or mdp.id = #partId#))
+		WHERE 
+		mmd.mntMemberId=#mngId# 
+		AND (CASE WHEN mmd.state = 1 THEN partName ELSE 'X' END) <![CDATA[<>]]> ''
+		<isNotEqual property="clerkName" compareValue="-1"> AND bm.name like '%$clerkName$%'</isNotEqual>
+		<isNotEmpty property="clerkTel">  AND bm.telphone like '%$clerkTel$%'</isNotEmpty>
+		ORDER BY mdp.partNum,mdp.idPath,bm.name LIMIT #startRow#,#endRow#;
+	</select>
+	<!-- 被监控会计查询总数 -->
+	<select id="countClerkQueryListForMonitor" resultClass="java.lang.Long" parameterClass="com.wb.model.pojo.computer.SuperintendentQueryForm">
+		SELECT 
+		count(DISTINCT mmd.id)
+		FROM biz_member bm 
+		INNER JOIN mnt_mngandusers mmd ON bm.id=mmd.userMemberId
+		<isNotEqual property="clerkState" compareValue="-1"> AND mmd.state = #clerkState#</isNotEqual>
+		<isEqual    property="clerkState" compareValue="-1"> AND ( mmd.state = #arg1# or mmd.state = #arg2# or mmd.state = #arg3# )</isEqual>
+		LEFT JOIN mnt_departmentInfo mdp ON (mdp.id = bm.departmentId AND (mdp.idPath like CONCAT((select idPath from mnt_departmentInfo WHERE id = #partId#),'-%') or mdp.id = #partId#))
+		WHERE 
+		mmd.mntMemberId=#mngId# 
+		AND (CASE WHEN mmd.state = 1 THEN partName ELSE 'X' END) <![CDATA[<>]]> ''
+		<isNotEqual property="clerkName" compareValue="-1"> AND bm.name like '%$clerkName$%'</isNotEqual>
+		<isNotEmpty property="clerkTel"> AND bm.telphone like '%$clerkTel$%'</isNotEmpty>
+	</select>
+	
+	<!-- 企业结账明细查询 -->
+	<typeAlias alias="settleOrgList" type="com.wb.model.pojo.computer.SettleOrgDto"/>
+	<select id="findSettleOrgList" resultClass="settleOrgList" parameterClass="com.wb.model.pojo.computer.EnterpriseQueryForm">
+		select 
+		rslt.*,
+		if(vst.vchNum is null,0,vst.vchNum) AS vchNum,vst.stamp AS lastVch
+		from
+		(
+			select 
+			boz.ID AS orgId,boz.Name AS orgName,
+			bab.id AS bookId,bab.name AS bookName,
+			bab.year AS year,bab.months AS months,
+			ata.userName AS userName,ata.userTelphone AS userTelphone,
+			boz.ownerId AS ownerId,boz.seqcode AS seqcode,
+			boz.acronym AS acronym,periodIsSettled(bab.Year,bab.months,#lisence#) AS isSettled
+			from biz_organization boz
+			INNER JOIN accountingagency ata ON boz.ownerId = ata.userId and ata.mngId = #creator#
+			<isNotEmpty property="fbUserName"> AND ( ata.userName like '%$fbUserName$%' || ata.userTelphone like '%$fbUserName$%' )</isNotEmpty> 
+			LEFT JOIN biz_accountbook bab  ON boz.id=bab.orgId AND bab.enable = 1
+			WHERE (boz.enable = 1 or boz.enable is null)
+			<isEqual property="authState" compareValue="1">
+				and DATE_ADD(bab.startTime, interval bab.months-month(bab.startTime) month) >= bab.startTime
+				and DATE_ADD(bab.startTime, interval bab.months-month(bab.startTime) month) >=#startDate#
+			</isEqual>
+			<isEqual property="authState" compareValue="0">
+				and DATE_ADD(bab.startTime, interval bab.months-month(bab.startTime) month) <![CDATA[<]]>#startDate#
+			</isEqual>
+			<!-- AND bab.isDefault = 1 -->
+		) rslt 
+		LEFT JOIN 
+		(
+	        select 
+	        bab.id AS bookId,max(bv.stamp) AS stamp,COUNT(bv.id) AS vchNum
+	        from biz_accountbook bab 
+	        INNER JOIN biz_voucher bv ON bab.id=bv.bookId
+	        WHERE bv.Gdate <![CDATA[<]]> #endDate# AND bv.Gdate <![CDATA[>=]]> #startDate#
+	        GROUP BY bab.id
+        ) vst ON rslt.BookID = vst.bookId 
+		WHERE 1 = 1
+		<isNotEmpty property="orgName"> AND ( rslt.orgName like '%$orgName$%' || rslt.acronym like '%$orgName$%' || rslt.seqcode like '%$orgName$%' )</isNotEmpty>
+		<isNotEqual property="authState" compareValue="-1">
+			AND isSettled = #authState#
+		</isNotEqual>
+		order by $sidx$ $sord$ limit #startRow#,#endRow# ;
+	</select>
+	
+	<!-- 企业结账明细查询(总数) -->
+	<select id="countSettleOrgList" resultClass="com.wb.model.pojo.computer.TrendDataDto" parameterClass="com.wb.model.pojo.computer.EnterpriseQueryForm">
+		select 
+		count(DISTINCT orgId) AS count, sum(vst.vchNum) AS summary1
+		from(
+			select
+			boz.ID AS orgId,boz.Name AS orgName,
+			bab.id AS bookId,bab.name AS bookName,
+			bab.year AS year,bab.months AS months,
+			ata.userName AS userName,ata.userTelphone AS userTelphone,
+			boz.ownerId AS ownerId,boz.seqcode AS seqcode,
+			boz.acronym AS acronym,periodIsSettled(bab.Year,bab.months,#lisence#) AS isSettled
+			from biz_organization boz
+			INNER JOIN accountingagency ata ON boz.ownerId = ata.userId and ata.mngId = #creator#
+			<isNotEmpty property="fbUserName"> AND ( ata.userName like '%$fbUserName$%' || ata.userTelphone like '%$fbUserName$%' )</isNotEmpty>
+			LEFT JOIN biz_accountbook bab  ON boz.id=bab.orgId AND bab.enable = 1
+			WHERE (boz.enable = 1 or boz.enable is null)
+			<isEqual property="authState" compareValue="1">
+				and DATE_ADD(bab.startTime, interval bab.months-month(bab.startTime) month) >= bab.startTime
+				and DATE_ADD(bab.startTime, interval bab.months-month(bab.startTime) month) >=#startDate#
+			</isEqual>
+			<isEqual property="authState" compareValue="0">
+				and DATE_ADD(bab.startTime, interval bab.months-month(bab.startTime) month) <![CDATA[<]]>#startDate#
+			</isEqual>
+			<!-- AND bab.isDefault = 1 -->
+		) rslt
+		LEFT JOIN
+		(
+			select
+			bab.id AS bookId,max(bv.stamp) AS stamp,COUNT(bv.id) AS vchNum
+			from biz_accountbook bab
+			INNER JOIN biz_voucher bv ON bab.id=bv.bookId
+			WHERE bv.Gdate <![CDATA[<]]> #endDate# AND bv.Gdate <![CDATA[>=]]> #startDate#
+			GROUP BY bab.id
+		) vst ON rslt.BookID = vst.bookId
+		WHERE 1 = 1
+		<isNotEmpty property="orgName"> AND ( rslt.orgName like '%$orgName$%' || rslt.acronym like '%$orgName$%' || rslt.seqcode like '%$orgName$%' )</isNotEmpty>
+		<isNotEqual property="authState" compareValue="-1"> AND isSettled = #authState# </isNotEqual>
+	</select>
+	
+	<!-- 企业报税明细查询 -->
+	<typeAlias alias="orgTaxSelectionForServer" type="com.wb.model.pojo.computer.OrgTaxMonitorDto"/>
+	<select id="findOrgTaxSelectionForServer" resultClass="orgTaxSelectionForServer" parameterClass="com.wb.model.pojo.computer.EnterpriseQueryForm">
+		select * from 
+		(
+			select 
+			boz.id AS orgId,mot.id AS motId,
+			boz.Acronym AS Acronym,atay.userName AS clerkName,
+			atay.userTelphone AS orgTelphone, 
+			boz.seqcode AS orgCode,boz.name AS orgName,
+			mot.taxDate AS orgTaxPeriod,mot.stamp AS sendMsgDate,
+			mot.amount AS orgTaxAmount,mot.taxDetail AS orgTaxDetail, 
+			if((mot.amount is not null or ( mot.isMsg = 1 ) ), 1, 0) AS orgTaxState,
+			if((mot.isMsg is null or mot.isMsg = 0),0,1) AS isMsgState
+			from biz_organization boz 
+			LEFT JOIN mnt_orgtax mot ON boz.id=mot.orgId AND mot.taxDate = #lisence#
+			LEFT JOIN accountingagency atay ON boz.ownerId = atay.userId
+			WHERE atay.mngId = #creator#  AND boz.enable = 1
+		) temp 
+		WHERE 1=1
+		<isNotEmpty property="orgName"> AND ( orgName like '%$orgName$%' || acronym like '%$orgName$%' || orgCode like '%$orgName$%' )</isNotEmpty>
+		<isNotEmpty property="fbUserName"> AND ( clerkName like '%$fbUserName$%' || orgTelphone like '%$fbUserName$%' )</isNotEmpty>
+		<isNotEqual property="authState" compareValue="-1"> AND orgTaxState = #authState# </isNotEqual>
+		<isNotEqual property="isDeleted" compareValue="-1"> AND isMsgState = #isDeleted# </isNotEqual>
+		order by $sidx$ $sord$ limit #startRow#,#endRow#;
+	</select>
+	<!-- 企业报税明细查询(总数) -->
+	<select id="countOrgTaxSelectionForServer" resultClass="com.wb.model.pojo.computer.TrendDataDto" parameterClass="com.wb.model.pojo.computer.EnterpriseQueryForm">
+		select 
+		count(orgId) AS count, 
+		sum(orgTaxAmount) AS summary1 
+		from 
+		(
+			select boz.id AS orgId,mot.id AS motId,
+			boz.Acronym AS Acronym,atay.userName AS clerkName,
+			atay.userTelphone AS orgTelphone, boz.seqcode AS orgCode,
+			boz.name AS orgName,mot.taxDate AS orgTaxPeriod,
+			mot.stamp AS sendMsgDate,mot.amount AS orgTaxAmount, 
+			if(mot.ID is null,0,1) AS orgTaxState,
+			if((mot.isMsg is null or mot.isMsg = 0),0,1) AS isMsgState
+			from biz_organization boz 
+			LEFT JOIN mnt_orgtax mot ON boz.id=mot.orgId AND mot.taxDate = #lisence#
+			LEFT JOIN accountingagency atay ON boz.ownerId = atay.userId
+			WHERE atay.mngId = #creator# AND boz.enable = 1
+    	)rslt
+		WHERE 1=1
+		<isNotEmpty property="orgName"> AND ( orgName like '%$orgName$%' || acronym like '%$orgName$%' || orgCode like '%$orgName$%' )</isNotEmpty>
+		<isNotEmpty property="fbUserName"> AND ( clerkName like '%$fbUserName$%' || orgTelphone like '%$fbUserName$%' )</isNotEmpty>
+		<isNotEqual property="authState" compareValue="-1"> AND orgTaxState = #authState# </isNotEqual>
+		<isNotEqual property="isDeleted" compareValue="-1"> AND isMsgState = #isDeleted# ;</isNotEqual>
+	</select>
+	
+	<!-- 会计信息查询明细 -->
+	<typeAlias alias="orgTaskDetialForClerk" type="com.wb.model.pojo.computer.ClerkWorkMonitorDto"/>
+	<select id="findOrgTaskDetialForClerk" resultClass="orgTaskDetialForClerk" parameterClass="com.wb.model.pojo.computer.EnterpriseQueryForm">
+		select *, #lisence# AS period
+		from
+		(
+			select
+			result.ownerId AS ownerId,
+			result.userId AS suserId,
+			count(result.orgId) AS orgNum,
+			sum(result.vchNums) AS vchNum,
+			sum(result.isSettled) AS settleNum,
+			max(lastVch) AS lastVch,
+			IFNULL(sum(result.isSettled)/count(result.orgId),'0.0000') AS settleRate
+			from
+			(
+				select
+				rslt.*,
+				if(vst.vchNums is null,0,vst.vchNums) AS vchNums,
+				vst.stamp AS lastVch
+				from
+				(
+					select boz.id AS orgId,bab.id AS bookId,
+					bab.year AS year,bab.months AS months,
+					boz.ownerId AS ownerId,ata.userId,
+					periodIsSettled(bab.Year,bab.months,#lisence#) AS isSettled
+					from accountingagency ata
+					LEFT JOIN  biz_organization boz ON boz.ownerId = ata.userId
+					LEFT JOIN biz_accountbook bab ON boz.id=bab.orgId AND bab.isDefault = 1 AND bab.enable = 1
+					and DATE_ADD(bab.startTime, interval bab.months-month(bab.startTime) month) >= bab.startTime
+					and DATE_ADD(bab.startTime, interval bab.months-month(bab.startTime) month) >=#startDate#
+					WHERE ata.mngId=#creator#  AND (boz.enable = 1 or boz.Enable is null)
+
+				) rslt
+				LEFT JOIN
+				(
+					select bab.id AS bookId,
+					max(bv.stamp) AS stamp,
+					COUNT(bv.id) AS vchNums
+					from biz_accountbook bab
+					INNER JOIN biz_voucher bv ON bab.id=bv.bookId
+					WHERE bv.Gdate <![CDATA[<]]> #endDate# AND bv.Gdate <![CDATA[>=]]> #startDate#
+					GROUP BY bab.id
+				) vst ON rslt.BookID = vst.bookId
+			) result group by userId
+		) settleUser
+		INNER JOIN
+		(
+			select rslt.userId AS tuserId,
+			rslt.clerkName AS clerkName,
+			rslt.orgTelphone AS clerkTelphone,
+			sum(orgTaxAmount) AS taxAmount,
+			sum(orgTaxState) AS taxState,
+			sum(isMsgState) AS msgState,
+			IFNULL(sum(rslt.orgTaxState)/count(rslt.orgId),'0.000') AS taxRate
+			from
+			(
+				select boz.id AS orgId,mot.id AS motId,atay.userId AS userId,
+				atay.userName AS clerkName,atay.userTelphone AS orgTelphone,
+				mot.stamp AS sendMsgDate,mot.amount AS orgTaxAmount,
+				if(mot.ID is null,0,1) AS orgTaxState,
+				if((mot.isMsg is null or mot.isMsg = 0),0,1) AS isMsgState
+				from accountingagency atay
+				LEFT JOIN biz_organization boz ON boz.ownerId = atay.userId
+				LEFT JOIN mnt_orgtax mot ON boz.id=mot.orgId AND mot.taxDate = #lisence#
+				WHERE atay.mngId = #creator#  AND (boz.enable = 1 or boz.Enable is null)
+			)rslt group by userId
+		) taxUser ON taxUser.tuserId = settleUser.suserId
+		WHERE settleRate <![CDATA[>=]]> #settleProcess# AND taxRate <![CDATA[>=]]> #taxProcess#
+		<isNotEmpty property="fbUserName"> AND ( clerkName like '%$fbUserName$%' or clerkTelphone like '%$fbUserName$%' )</isNotEmpty>
+		ORDER by $sidx$ $sord$ limit #startRow#,#endRow#;
+	</select>
+	<!-- 会计信息查询总数量 -->
+	<select id="countOrgTaskDetialForClerk" resultClass="com.wb.model.pojo.computer.TrendDataDto" parameterClass="com.wb.model.pojo.computer.EnterpriseQueryForm">
+		select count(suserId) AS count,sum(orgNum) AS summary1,
+		sum(settleNum) AS summary2,sum(vchNum) AS summary3,
+		sum(taxState) AS summary4,sum(taxAmount) AS summary5,sum(msgState) AS summary6
+		from
+		(
+			select
+			result.ownerId AS ownerId,
+			result.userId AS suserId,
+			count(result.orgId) AS orgNum,
+			sum(result.vchNums) AS vchNum,
+			sum(result.isSettled) AS settleNum,
+			max(lastVch) AS lastVch,
+			IFNULL(sum(result.isSettled)/count(result.orgId),'0.0000') AS settleRate
+			from
+			(
+				select
+				rslt.*,
+				if(vst.vchNums is null,0,vst.vchNums) AS vchNums,
+				vst.stamp AS lastVch
+				from
+				(
+					select boz.id AS orgId,bab.id AS bookId,
+					bab.year AS year,bab.months AS months,
+					boz.ownerId AS ownerId,ata.userId,
+					periodIsSettled(bab.Year,bab.months,#lisence#) AS isSettled
+					from accountingagency ata
+					LEFT JOIN  biz_organization boz ON boz.ownerId = ata.userId
+					LEFT JOIN biz_accountbook bab ON boz.id=bab.orgId AND bab.isDefault = 1 AND bab.enable = 1
+					and DATE_ADD(bab.startTime, interval bab.months-month(bab.startTime) month) >= bab.startTime
+					and DATE_ADD(bab.startTime, interval bab.months-month(bab.startTime) month) >=#startDate#
+					WHERE ata.mngId=#creator#  AND (boz.enable = 1 or boz.Enable is null)
+
+				) rslt
+				LEFT JOIN
+				(
+					select bab.id AS bookId,
+					max(bv.stamp) AS stamp,
+					COUNT(bv.id) AS vchNums
+					from biz_accountbook bab
+					INNER JOIN biz_voucher bv ON bab.id=bv.bookId
+					WHERE bv.Gdate <![CDATA[<]]> #endDate# AND bv.Gdate <![CDATA[>=]]> #startDate#
+					GROUP BY bab.id
+				) vst ON rslt.BookID = vst.bookId
+			) result group by userId
+		) settleUser
+		INNER JOIN
+		(
+			select rslt.userId AS tuserId,
+			rslt.clerkName AS clerkName,
+			rslt.orgTelphone AS clerkTelphone,
+			sum(orgTaxAmount) AS taxAmount,
+			sum(orgTaxState) AS taxState,
+			sum(isMsgState) AS msgState,
+			IFNULL(sum(rslt.orgTaxState)/count(rslt.orgId),'0.000') AS taxRate
+			from
+			(
+				select boz.id AS orgId,mot.id AS motId,atay.userId AS userId,
+				atay.userName AS clerkName,atay.userTelphone AS orgTelphone,
+				mot.stamp AS sendMsgDate,mot.amount AS orgTaxAmount,
+				if(mot.ID is null,0,1) AS orgTaxState,
+				if((mot.isMsg is null or mot.isMsg = 0),0,1) AS isMsgState
+				from accountingagency atay
+				LEFT JOIN biz_organization boz ON boz.ownerId = atay.userId
+				LEFT JOIN mnt_orgtax mot ON boz.id=mot.orgId AND mot.taxDate = #lisence#
+				WHERE atay.mngId = #creator#  AND (boz.enable = 1 or boz.Enable is null)
+			)rslt group by userId
+		) taxUser ON taxUser.tuserId = settleUser.suserId
+		WHERE 1 = 1 AND settleRate <![CDATA[>=]]> #settleProcess# AND taxRate <![CDATA[>=]]> #taxProcess#
+		<isNotEmpty property="fbUserName"> AND ( clerkName like '%$fbUserName$%' or clerkTelphone like '%$fbUserName$%' )</isNotEmpty>
+	</select>
+	
+	<!-- pc端首页显示信息查询 -->
+	<typeAlias alias="homeShowForComputer" type="com.wb.model.pojo.computer.HomeShowForComputer"/>
+	<select id="findHomeShowForComputer" resultClass="homeShowForComputer" parameterClass="com.wb.model.pojo.computer.EnterpriseQueryForm">
+	select 
+	if(allClerks is null,0,allClerks) AS allClerks,
+	if(onlineClerks is null,0,onlineClerks) AS onlineClerks,
+	if(taxState is null,0,taxState) AS taxState,
+	if(orgNum is null,0,orgNum) AS orgNum,
+	if(settleNum is null,0,settleNum) AS settleNum
+	from 
+	(
+		select count(clerkId) AS allClerks,sum(clerkState) AS onlineClerks 
+		from 
+		(
+			SELECT bm.id AS clerkId,
+			if((TIMESTAMPDIFF(SECOND,bm.lastStamp,now())>#arg1#),#arg2#,#arg3#) AS clerkState
+			FROM biz_member bm join mnt_mngandusers mmd ON bm.id=mmd.userMemberId
+			WHERE mmd.mntMemberId=#creator#  AND mmd.state = #authState#
+		) rslt1 WHERE 1 = 1
+	) rl1,
+	(
+		select sum(orgTaxState) AS taxState,count(orgId) AS orgNum
+	    from 
+	    (
+			select 
+			if(temp.taxDate = #lisence#,1,0) AS orgTaxState,
+			temp.orgId AS orgId 
+			from  
+			(
+				select if(mot.ID is null,0,1) AS orgTaxState, 
+				boz.ID AS orgId,mot.taxDate AS taxDate
+				from biz_organization boz 
+				LEFT JOIN mnt_orgtax mot ON boz.id=mot.orgId 
+				LEFT JOIN accountingagency atay ON boz.ownerId = atay.userId
+				WHERE atay.mngId = #creator# AND mot.taxDate = #lisence# AND boz.enable = 1
+				union
+				select if(mot.ID is null,0,1) AS orgTaxState, 
+				boz.ID AS orgId,mot.taxDate AS taxDate
+				from biz_organization boz 
+				LEFT JOIN mnt_orgtax mot ON boz.id=mot.orgId 
+				LEFT JOIN accountingagency atay ON boz.ownerId = atay.userId
+				WHERE atay.mngId = #creator# AND boz.enable = 1
+			) temp group by orgId
+		)rslt
+	) rl2,
+	(
+		select 
+		sum(result.isSettled) AS settleNum
+		from 
+		(
+			select boz.id AS orgId,
+			periodIsSettled(bab.Year,bab.months,#lisence#) AS isSettled
+			from biz_organization boz 
+			LEFT JOIN biz_accountbook bab ON boz.id=bab.orgId 
+			LEFT JOIN accountingagency ata ON boz.ownerId = ata.userId
+			WHERE boz.enable = 1 AND bab.enable = 1 AND bab.isDefault = 1 AND ata.mngId=#creator#
+		) result
+	) rl3
+	</select>
+	
+	<!-- 主界面报表用返回class -->
+	<typeAlias alias="reportDto" type="com.wb.model.pojo.computer.TrendDataDto"/>
+	<!-- 主界面查询企业凭证量报表 -->
+	<select id="findSearchVchNumForMng" resultClass="reportDto" parameterClass="com.wb.model.pojo.computer.EnterpriseQueryForm">
+		select 
+		rslt.gdate AS period,count(bvId) AS count
+		from 
+		(
+			select left(bv.Gdate,7) AS gdate,bv.id AS bvId
+			from biz_voucher bv 
+			WHERE bv.BookId in 
+			(
+				select bab.id AS bookId 
+				from biz_organization boz 
+				LEFT JOIN accountingagency ata ON ata.userId=boz.ownerId 
+				LEFT JOIN biz_accountbook bab ON boz.id=bab.orgId
+				WHERE bab.enable = 1 AND bab.isDefault = 1 AND ata.mngId = #creator#
+			) 
+			AND bv.Gdate <![CDATA[<]]> #endDate# AND bv.Gdate <![CDATA[>=]]> #startDate#
+		)rslt
+		group by rslt.gdate order by rslt.gdate asc ;
+	</select>
+	
+	<!-- 主界面查询企业缴费报表 -->
+	<select id="findSearchFeeForMng" resultClass="reportDto" parameterClass="com.wb.model.pojo.computer.EnterpriseQueryForm">
+		select rslt.payDate AS period,sum(realAmount) AS count
+		from 
+		(
+			select left(med.payStamp,7) AS payDate,
+			med.realAmount AS realAmount
+			from mnt_expenseDetail med
+			WHERE
+			med.orgId in 
+			(
+				select boz.id AS orgId
+				from biz_organization boz 
+				LEFT JOIN accountingagency ata ON ata.userId = boz.ownerId
+				WHERE ata.mngId = #creator# AND boz.Enable = 1
+			) 
+			AND med.payStamp <![CDATA[<]]> #endDate# AND med.payStamp <![CDATA[>=]]> #startDate#
+		)rslt
+		group by rslt.payDate order by rslt.payDate asc;
+	</select>
+	
+	<!-- 主界面查询企业报税报表 -->
+	<select id="findSearchTaxNumForMng" resultClass="reportDto" parameterClass="com.wb.model.pojo.computer.EnterpriseQueryForm">
+		select 
+		mot.taxDate AS period,
+		sum(mot.amount) AS count 
+		from mnt_orgtax mot
+		WHERE 
+		mot.OrgID in 
+		(
+			select boz.id AS orgId 
+			from biz_organization boz 
+			LEFT JOIN accountingagency ata ON ata.userId = boz.ownerId
+			WHERE ata.mngId = #creator# AND boz.Enable = 1
+		) 
+		AND mot.taxDate <![CDATA[<=]]> #sord# AND mot.taxDate <![CDATA[>=]]> #sidx#
+		group by mot.taxDate order by mot.taxDate asc ;
+	</select>
+	<!-- 多区间统计 -->
+	
+	<!-- 1会计维度统计凭证量 -->
+	<typeAlias alias="clerkVchForMng" type="com.wb.model.pojo.computer.ClerkVchStatisticDto"/>
+	<select id="findClerkVchForMng" resultClass="clerkVchForMng" parameterClass="com.wb.model.pojo.computer.EnterpriseQueryForm">
+		select 
+			result.ownerId AS ownerId,
+			result.userName AS name,
+			result.userTelphone AS telphone,
+			count(result.orgId) AS orgNum,
+			sum(result.vchNums) AS vchNum,
+			max(lastVch) AS lastVch
+		from 
+		(
+			select rslt.*,
+			if(vst.vchNums is null,0,vst.vchNums) AS vchNums,
+			vst.stamp AS lastVch
+			from
+			(
+				select boz.id AS orgId,bab.id AS bookId,boz.ownerId AS ownerId,
+				ata.userId as userId,ata.userName AS userName,ata.userTelphone AS userTelphone
+				from accountingagency ata
+				LEFT JOIN biz_organization boz ON boz.ownerId = ata.userId 
+				LEFT JOIN biz_accountbook bab ON boz.id=bab.orgId AND bab.enable = 1 AND bab.isDefault = 1
+				WHERE ata.mngId = #creator# AND (boz.enable = 1 or boz.enable is null)
+				<isNotEmpty property="userTelphone"> AND ( ata.userName like '%$userTelphone$%' || ata.userTelphone like '%$userTelphone$%' )</isNotEmpty>
+			) rslt 
+			LEFT JOIN 
+			(
+		        select bab.id AS bookId,max(bv.stamp) AS stamp,COUNT(bv.id) AS vchNums
+		        from biz_accountbook bab join biz_voucher bv ON bab.id=bv.bookId
+		        WHERE bv.Gdate <![CDATA[<=]]> #endDate# AND bv.Gdate <![CDATA[>=]]> #startDate#
+		        GROUP BY bab.id
+	        ) vst ON rslt.BookID = vst.bookId
+		) result
+		group by result.userId order by $sidx$ $sord$ limit #startRow#,#endRow#;
+	</select>
+	<select id="countClerkVchForMng" resultClass="com.wb.model.pojo.computer.TrendDataDto" parameterClass="com.wb.model.pojo.computer.EnterpriseQueryForm">
+		select 
+			count(userId) AS count,
+			sum(orgNum) AS summary1,
+			sum(vchNum) AS summary2
+		from
+		(
+			select 
+				result.ownerId AS ownerId,
+				result.userName AS name,
+				result.userId AS userId,
+				result.userTelphone AS telphone,
+				count(result.orgId) AS orgNum,
+				sum(result.vchNums) AS vchNum,
+				max(lastVch) AS lastVch
+			from (
+				select rslt.*,
+				if(vst.vchNums is null,0,vst.vchNums) AS vchNums,
+				vst.stamp AS lastVch
+				from
+				(
+					select boz.id AS orgId,bab.id AS bookId,boz.ownerId AS ownerId,
+					ata.userId as userId,ata.userName AS userName,ata.userTelphone AS userTelphone
+					from accountingagency ata
+					LEFT JOIN biz_organization boz ON boz.ownerId = ata.userId
+					LEFT JOIN biz_accountbook bab ON boz.id=bab.orgId AND bab.enable = 1 AND bab.isDefault = 1
+					WHERE ata.mngId = #creator# AND (boz.enable = 1 or boz.enable is null)
+					<isNotEmpty property="userTelphone"> AND ( ata.userName like '%$userTelphone$%' || ata.userTelphone like '%$userTelphone$%' )</isNotEmpty>
+				) rslt 
+				LEFT JOIN 
+				(
+			        select bab.id AS bookId,max(bv.stamp) AS stamp,COUNT(bv.id) AS vchNums
+			        from biz_accountbook bab join biz_voucher bv ON bab.id=bv.bookId
+			        WHERE bv.Gdate <![CDATA[<=]]> #endDate# AND bv.Gdate <![CDATA[>=]]> #startDate#
+			        GROUP BY bab.id
+			    ) vst ON rslt.BookID = vst.bookId
+			) result group by result.userId
+		)r;
+	</select>
+	
+	<!-- 2公司维度统计凭证量 -->
+	<typeAlias alias="orgVchForMng" type="com.wb.model.pojo.computer.OrgVchStatisticDto"/>
+	<select id="findOrgVchForMng" resultClass="orgVchForMng" parameterClass="com.wb.model.pojo.computer.EnterpriseQueryForm">
+		select rslt.*,
+		if(vst.vchNums is null,0,vst.vchNums) AS vchNums,
+		vst.stamp AS lastVch
+		from
+		(
+			select 
+			boz.id AS orgId,bab.id AS bookId,
+			ata.userName as userName,ata.userTelphone as userTelphone,
+			boz.ownerId AS ownerId,boz.name AS orgName,
+			bab.Name AS bookName,boz.Acronym,boz.seqCode
+			from biz_organization boz 
+			INNER JOIN accountingagency ata ON boz.ownerId = ata.userId
+			<isNotEmpty property="userTelphone"> AND ( ata.userName like '%$userTelphone$%' || ata.userTelphone like '%$userTelphone$%' )</isNotEmpty>
+			LEFT JOIN biz_accountbook bab ON boz.id=bab.orgId AND bab.enable = 1 AND bab.isDefault = 1
+			WHERE boz.enable = 1 AND ata.mngId = #creator#
+		) rslt 
+		LEFT JOIN 
+		(	
+			select bab.id AS bookId,max(bv.stamp) AS stamp,COUNT(bv.id) AS vchNums
+			from biz_accountbook bab join biz_voucher bv ON bab.id=bv.bookId
+			WHERE bv.Gdate <![CDATA[<=]]> #endDate# AND bv.Gdate <![CDATA[>=]]> #startDate#
+			GROUP BY bab.id
+		) vst ON rslt.BookID = vst.bookId
+		WHERE 1 = 1
+		<isNotEmpty property="orgName"> AND ( rslt.orgName like '%$orgName$%' || rslt.acronym like '%$orgName$%' || rslt.seqcode like '%$orgName$%' )</isNotEmpty>
+		order by $sidx$ $sord$ limit #startRow#,#endRow#;
+	</select>
+	<select id="countOrgVchForMng" resultClass="com.wb.model.pojo.computer.TrendDataDto" parameterClass="com.wb.model.pojo.computer.EnterpriseQueryForm">
+		select count(OrgID) AS count,sum(vchNums) AS summary1
+		from (
+			select rslt.*,
+			if(vst.vchNums is null,0,vst.vchNums) AS vchNums,
+			vst.stamp AS lastVch
+			from
+			(
+				select 
+				boz.id AS orgId,bab.id AS bookId,
+				ata.userName as userName,ata.userTelphone as userTelphone,
+				boz.ownerId AS ownerId,boz.name AS orgName,
+				bab.Name AS bookName,boz.Acronym,boz.seqCode
+				from biz_organization boz 
+				INNER JOIN accountingagency ata ON boz.ownerId = ata.userId
+				<isNotEmpty property="userTelphone"> AND ( ata.userName like '%$userTelphone$%' || ata.userTelphone like '%$userTelphone$%' )</isNotEmpty>
+				LEFT JOIN biz_accountbook bab ON boz.id=bab.orgId AND bab.enable = 1 AND bab.isDefault = 1
+				WHERE boz.enable = 1 AND ata.mngId = #creator#
+			) rslt 
+			LEFT JOIN 
+			(
+				select bab.id AS bookId,
+				max(bv.stamp) AS stamp,COUNT(bv.id) AS vchNums
+				from biz_accountbook bab join biz_voucher bv ON bab.id=bv.bookId
+				WHERE bv.Gdate <![CDATA[<=]]> #endDate# AND bv.Gdate <![CDATA[>=]]> #startDate#
+				GROUP BY bab.id
+			) vst ON rslt.BookID = vst.bookId
+			WHERE 1 = 1
+			<isNotEmpty property="orgName"> AND ( rslt.orgName like '%$orgName$%' || rslt.acronym like '%$orgName$%' || rslt.seqcode like '%$orgName$%' )</isNotEmpty>
+		) x WHERE 1 = 1;
+	</select>
+	
+	
+	<!-- 3会计维度统计税金 -->
+	<typeAlias alias="clerkTaxForMng" type="com.wb.model.pojo.computer.ClerkTaxStatisticDto"/>
+	<select id="findClerkTaxForMng" resultClass="clerkTaxForMng" parameterClass="com.wb.model.pojo.computer.EnterpriseQueryForm">
+		SELECT 
+			rslt.userId AS userId,
+			rslt.clerkName AS clerkName,
+			rslt.orgTelphone AS clerkTelphone,
+			sum(orgTaxAmount) AS taxAmount,
+			sum(orgTaxState) AS taxState,
+			sum(isMsgState) AS msgState,
+			count(DISTINCT orgInfo.orgId) AS orgNum
+		FROM
+		(
+			select boz.id AS orgId,mot.id AS motId,
+			atay.userId AS userId,atay.userName AS clerkName,
+			atay.userTelphone AS orgTelphone,mot.stamp AS sendMsgDate,
+			mot.amount AS orgTaxAmount, if(mot.ID is null,0,1) AS orgTaxState,
+			if((mot.isMsg is null or mot.isMsg = 0),0,1) AS isMsgState
+			from accountingagency atay
+			LEFT JOIN biz_organization boz ON boz.ownerId = atay.userId
+			LEFT JOIN mnt_orgtax mot ON boz.id=mot.orgId AND mot.taxDate <![CDATA[<=]]> #endDate# AND mot.taxDate <![CDATA[>=]]> #startDate#
+			WHERE atay.mngId = #creator#  AND (boz.enable = 1 or boz.enable is null)
+		) rslt
+		LEFT JOIN 
+		(
+			select atay.userId AS userId,boz.id as orgId from biz_organization boz
+			LEFT JOIN accountingagency atay ON boz.ownerId = atay.userId 
+			WHERE atay.mngId = #creator#  AND boz.enable = 1
+		) orgInfo ON rslt.orgId = orgInfo.orgId
+        WHERE 1 = 1
+		<isNotEmpty property="userTelphone"> AND ( rslt.clerkName like '%$userTelphone$%' || rslt.orgTelphone like '%$userTelphone$%' )</isNotEmpty>
+		group by userId 
+		order by $sidx$ $sord$ limit #startRow#,#endRow#;
+	</select>
+	<select id="countClerkTaxForMng" resultClass="com.wb.model.pojo.computer.TrendDataDto" parameterClass="com.wb.model.pojo.computer.EnterpriseQueryForm">
+		select count(r.userId) AS count ,sum(r.taxAmount) AS summary1,sum(r.taxState) AS summary2,sum(r.msgState) AS summary3,sum(r.orgNum) AS summary4
+		from
+		(
+			select rslt.userId AS userId,
+			rslt.clerkName AS clerkName,
+			rslt.orgTelphone AS clerkTelphone,
+			sum(orgTaxAmount) AS taxAmount,
+			sum(orgTaxState) AS taxState,
+			sum(isMsgState) AS msgState,
+			count(DISTINCT orgInfo.orgId) AS orgNum
+			from 
+			(
+				select boz.id AS orgId,mot.id AS motId,
+				atay.userId AS userId,atay.userName AS clerkName,
+				atay.userTelphone AS orgTelphone,mot.stamp AS sendMsgDate,
+				mot.amount AS orgTaxAmount, if(mot.ID is null,0,1) AS orgTaxState,
+				if((mot.isMsg is null or mot.isMsg = 0),0,1) AS isMsgState
+				from accountingagency atay
+				LEFT JOIN biz_organization boz ON boz.ownerId = atay.userId
+				LEFT JOIN mnt_orgtax mot ON boz.id=mot.orgId AND mot.taxDate <![CDATA[<=]]> #endDate# AND mot.taxDate <![CDATA[>=]]> #startDate#
+				WHERE atay.mngId = #creator# AND (boz.enable = 1 or boz.enable is null)
+			) rslt
+			LEFT JOIN 
+			(
+				select atay.userId AS userId,boz.id as orgId from biz_organization boz
+				LEFT JOIN accountingagency atay ON boz.ownerId = atay.userId 
+				WHERE atay.mngId = #creator#  AND boz.enable = 1
+			) orgInfo ON rslt.orgId = orgInfo.orgId
+	        WHERE 1 = 1
+			<isNotEmpty property="userTelphone"> AND ( rslt.clerkName like '%$userTelphone$%' || rslt.orgTelphone like '%$userTelphone$%' )</isNotEmpty>
+			group by userId
+		)r;
+	</select>
+	
+	
+	<!-- 4公司维度统计税金 -->
+	<typeAlias alias="orgTaxForMng" type="com.wb.model.pojo.computer.OrgTaxStatisticDto"/>
+	<select id="findOrgTaxForMng" resultClass="orgTaxForMng" parameterClass="com.wb.model.pojo.computer.EnterpriseQueryForm">
+		select 
+			temp.orgId AS orgId,temp.orgName AS orgName,
+			temp.motId AS motId,temp.userId AS userId,temp.clerkName AS clerkName,
+			temp.orgTelphone AS orgTelphone,sum(temp.orgTaxAmount) AS orgTaxAmount,
+			sum(orgTaxState) AS orgTaxState,sum(isMsgState) AS isMsgState,Acronym,seqCode
+		from 
+		(
+			select boz.id AS orgId,boz.name AS orgName,
+			mot.id AS motId,atay.userId AS userId,
+			atay.userName AS clerkName,atay.userTelphone AS orgTelphone,
+			mot.amount AS orgTaxAmount, if(mot.ID is null,0,1) AS orgTaxState,
+			if((mot.isMsg is null or mot.isMsg = 0),0,1) AS isMsgState,
+			boz.Acronym AS Acronym,boz.seqCode AS seqCode
+			from biz_organization boz 
+			INNER JOIN accountingagency atay ON boz.ownerId = atay.userId
+			LEFT JOIN mnt_orgtax mot ON boz.id=mot.orgId AND mot.taxDate <![CDATA[<=]]> #endDate# AND mot.taxDate <![CDATA[>=]]> #startDate# 
+			WHERE atay.mngId = #creator# AND boz.enable = 1
+			<isNotEmpty property="orgName"> AND ( boz.name like '%$orgName$%' || boz.acronym like '%$orgName$%' || boz.seqcode like '%$orgName$%' )</isNotEmpty>
+			<isNotEmpty property="userTelphone"> AND ( atay.userName like '%$userTelphone$%' || atay.userTelphone like '%$userTelphone$%' )</isNotEmpty>
+		) temp group by orgId order by $sidx$ $sord$ limit #startRow#,#endRow#;
+	</select>
+	<select id="countOrgTaxForMng" resultClass="com.wb.model.pojo.computer.TrendDataDto" parameterClass="com.wb.model.pojo.computer.EnterpriseQueryForm">
+		select 
+			count(orgId) AS count,
+			sum(orgTaxAmount) AS summary1,
+			sum(orgTaxState) AS summary2,
+			sum(isMsgState) AS summary3
+		from (
+			select temp.orgId AS orgId,
+			temp.orgName AS orgName,
+			temp.motId AS motId,
+			temp.userId AS userId,
+			temp.clerkName AS clerkName,
+			temp.orgTelphone AS orgTelphone,
+			sum(temp.orgTaxAmount) AS orgTaxAmount,
+			sum(orgTaxState) AS orgTaxState,
+			sum(isMsgState) AS isMsgState,Acronym,seqCode
+			from 
+			(
+				select boz.id AS orgId,
+				boz.name AS orgName,
+				mot.id AS motId,atay.userId AS userId,
+				atay.userName AS clerkName,
+				atay.userTelphone AS orgTelphone,
+				mot.amount AS orgTaxAmount, 
+				if(mot.ID is null,0,1) AS orgTaxState,
+				if((mot.isMsg is null or mot.isMsg = 0),0,1) AS isMsgState,
+				boz.Acronym AS Acronym,boz.seqCode AS seqCode
+				from biz_organization boz 
+				INNER JOIN accountingagency atay ON boz.ownerId = atay.userId
+				LEFT JOIN mnt_orgtax mot ON boz.id=mot.orgId AND mot.taxDate <![CDATA[<=]]> #endDate# AND mot.taxDate <![CDATA[>=]]> #startDate# 
+				WHERE atay.mngId = #creator# AND boz.enable = 1
+				<isNotEmpty property="orgName"> AND ( boz.name like '%$orgName$%' || boz.acronym like '%$orgName$%' || boz.seqcode like '%$orgName$%' )</isNotEmpty>
+				<isNotEmpty property="userTelphone"> AND ( atay.userName like '%$userTelphone$%' || atay.userTelphone like '%$userTelphone$%' )</isNotEmpty>
+			) temp group by orgId
+		)r WHERE 1=1;
+	</select>
+	
+	
+	<!--5会计维度  缴费统计 -->
+	<typeAlias alias="clerkFeeForMng" type="com.wb.model.pojo.computer.ClerkFeeStatisticDto"/>
+	<select id="findClerkFeeForMng" resultClass="clerkFeeForMng" parameterClass="com.wb.model.pojo.computer.EnterpriseQueryForm">
+	SELECT rslt.ownerId AS ownerId,
+		   rslt.OrgID AS orgId,
+		   rslt.legalperson AS legalperson,
+		   rslt.lptelphone AS lptelphone,
+		   sum(rslt.realAmount) AS realAmount,
+		   count(DISTINCT orgInfo.orgId) AS orgNum
+		FROM 
+		(
+			select boz.ownerId AS ownerId, 
+			boz.id AS orgId,
+			atay.userId as userId,
+			atay.userName AS legalperson,
+			atay.userTelphone AS lptelphone,
+			if(med.realAmount is null,0,med.realAmount) AS realAmount
+			from accountingagency atay
+			LEFT JOIN biz_organization boz ON boz.ownerId = atay.userId 
+			LEFT JOIN 
+			(
+				SELECT orgId AS orgId,
+				SUM(realAmount) AS realAmount
+				FROM mnt_expenseDetail med
+				WHERE med.payStamp <![CDATA[<=]]> #endDate# AND med.payStamp <![CDATA[>=]]> #startDate# group by orgId
+			) med ON med.OrgID = boz.ID
+			WHERE atay.mngId = #creator# AND (boz.Enable = 1 or boz.Enable is null)
+			<isNotEmpty property="userTelphone"> AND (atay.userName like '%$userTelphone$%' || atay.userTelphone like '%$userTelphone$%' )</isNotEmpty>
+		) rslt 
+		LEFT JOIN 
+		(
+			select boz.id as orgId from biz_organization boz
+			LEFT JOIN accountingagency atay ON boz.ownerId = atay.userId 
+			WHERE atay.mngId = #creator#  AND boz.enable = 1
+		) orgInfo ON rslt.orgId = orgInfo.orgId
+        GROUP BY userId
+        ORDER BY $sidx$ $sord$ LIMIT #startRow#,#endRow#;
+	</select>
+	<select id="countClerkFeeForMng" resultClass="com.wb.model.pojo.computer.TrendDataDto" parameterClass="com.wb.model.pojo.computer.EnterpriseQueryForm">
+		SELECT 
+			count(userId) AS count,
+			sum(realAmount) AS summary2,
+			sum(x.orgNum) AS summary4
+		from 
+		(
+			SELECT rslt.OrgID AS orgId,rslt.userId as userId,
+		    rslt.legalperson AS legalperson,
+		    rslt.lptelphone AS lptelphone,
+		    sum(rslt.realAmount) AS realAmount,
+		    count(DISTINCT orgInfo.orgId) AS orgNum
+			FROM 
+			(
+				select 
+				boz.ownerId AS ownerId, 
+				boz.id AS orgId,
+				atay.userId as userId,
+				atay.userName AS legalperson,
+				atay.userTelphone AS lptelphone,
+				if(med.realAmount is null,0,med.realAmount) AS realAmount
+				from accountingagency atay
+				LEFT JOIN biz_organization boz ON boz.ownerId = atay.userId 
+				LEFT JOIN 
+				(
+					SELECT orgId AS orgId,
+					sum(realAmount) AS realAmount
+					FROM mnt_expenseDetail med
+					WHERE med.payStamp <![CDATA[<=]]> #endDate# AND med.payStamp <![CDATA[>=]]> #startDate# group by orgId
+				) med ON med.OrgID = boz.ID
+				WHERE atay.mngId = #creator# AND (boz.Enable = 1 or boz.Enable is null)
+				<isNotEmpty property="userTelphone"> AND (atay.userName like '%$userTelphone$%' || atay.userTelphone like '%$userTelphone$%' )</isNotEmpty>
+			) rslt 
+			LEFT JOIN 
+			(
+				select boz.id as orgId from biz_organization boz
+				LEFT JOIN accountingagency atay ON boz.ownerId = atay.userId 
+				WHERE atay.mngId = #creator#  AND boz.enable = 1
+			) orgInfo ON rslt.orgId = orgInfo.orgId
+	        GROUP BY userId 
+	        ORDER BY $sidx$ $sord$ LIMIT #startRow#,#endRow#
+		) x;
+	</select>
+	
+	
+	<!-- 6 公司维度缴费统计 -->
+	<typeAlias alias="orgFeeForMng" type="com.wb.model.pojo.computer.OrgFeeStatisticDto"/>
+	<select id="findOrgFeeForMng" resultClass="orgFeeForMng" parameterClass="com.wb.model.pojo.computer.EnterpriseQueryForm">
+		select 
+		boz.ownerId AS ownerId,
+		boz.id AS orgId, boz.seqcode AS seqCode,
+		boz.Acronym AS Acronym, boz.name AS orgName,
+		atay.userName AS legalperson,atay.userTelphone AS lptelphone,
+		if(med.payMonths is null,0,med.payMonths) AS payMonths,
+		med.onDate AS onDate,med.offDate AS offDate,
+		if(med.realAmount is null,0,med.realAmount) AS realAmount,
+		if(med.totalMonths is null,0,med.totalMonths) AS totalMonths
+		from biz_organization boz 
+		LEFT JOIN biz_member bm ON boz.ownerId = bm.id 
+		LEFT JOIN accountingagency atay ON boz.ownerId = atay.userId 
+		LEFT JOIN 
+		(
+			SELECT orgId AS orgId,
+			sum(payMonths) AS payMonths,
+			min(onDate) AS onDate,max(offDate) AS offDate,
+			sum(realAmount) AS realAmount,
+			PERIOD_DIFF(DATE_FORMAT(max(offDate),'%Y%m'),DATE_FORMAT(min(onDate),'%Y%m'))+1 AS totalMonths
+			FROM mnt_expenseDetail med
+			WHERE med.payStamp <![CDATA[<=]]> #endDate# AND med.payStamp <![CDATA[>=]]> #startDate# group by orgId order by orgId
+	    ) med ON med.OrgID = boz.ID
+		WHERE atay.mngId = #creator# AND boz.enable = 1
+		<isNotEmpty property="orgName"> AND ( boz.name like '%$orgName$%' || boz.acronym like '%$orgName$%' || boz.seqcode like '%$orgName$%')</isNotEmpty>
+		<isNotEmpty property="userTelphone"> AND ( bm.name like '%$userTelphone$%' || bm.telphone like '%$userTelphone$%' )</isNotEmpty>
+		ORDER BY $sidx$ $sord$ limit #startRow#,#endRow#;
+	</select>
+	<select id="countOrgFeeForMng" resultClass="com.wb.model.pojo.computer.TrendDataDto" parameterClass="com.wb.model.pojo.computer.EnterpriseQueryForm">
+		select 
+			count(ownerId) AS count,
+			sum(payMonths) AS summary1,
+			sum(realAmount) AS summary2,
+			sum(totalMonths) AS summary3
+		from 
+		(
+			select boz.ownerId AS ownerId,
+			boz.id AS orgId, 
+			boz.seqcode AS seqCode,
+			boz.Acronym AS Acronym, 
+			boz.name AS orgName,bm.name AS legalperson,
+			bm.telphone AS lptelphone,
+			if(med.payMonths is null,0,med.payMonths) AS payMonths,
+			med.onDate AS onDate,med.offDate AS offDate,
+			if(med.realAmount is null,0,med.realAmount) AS realAmount,
+			if(med.totalMonths is null,0,med.totalMonths) AS totalMonths
+			from biz_organization boz 
+			LEFT JOIN biz_member bm ON boz.ownerId = bm.id 
+			LEFT JOIN accountingagency atay ON boz.ownerId = atay.userId 
+			LEFT JOIN 
+			(
+				SELECT orgId AS orgId,sum(payMonths) AS payMonths,
+				min(onDate) AS onDate,max(offDate) AS offDate,
+				sum(realAmount) AS realAmount,
+				PERIOD_DIFF(DATE_FORMAT(max(offDate),'%Y%m'),DATE_FORMAT(min(onDate),'%Y%m'))+1 AS totalMonths
+				FROM mnt_expenseDetail med
+				WHERE med.payStamp <![CDATA[<=]]> #endDate# AND med.payStamp <![CDATA[>=]]> #startDate# group by orgId order by orgId
+		    ) med ON med.OrgID = boz.ID
+			WHERE atay.mngId = #creator# AND boz.enable = 1
+			<isNotEmpty property="orgName"> AND ( boz.name like '%$orgName$%' || boz.acronym like '%$orgName$%' || boz.seqcode like '%$orgName$%')</isNotEmpty>
+			<isNotEmpty property="userTelphone"> AND ( bm.name like '%$userTelphone$%' || bm.telphone like '%$userTelphone$%' )</isNotEmpty>
+			ORDER BY $sidx$ $sord$
+		)r WHERE 1=1;
+	</select>
+	
+	
+	
+	<!--                               手机端接口                                                              -->
+	
+	
+	<!-- 手机端主页显示信息查询 -->
+	<typeAlias alias="homeShowForMobile" type="com.wb.model.pojo.mobile.HomeShowForMobile"/>
+	<select id="findHomeShowForMobile" resultClass="homeShowForMobile" parameterClass="com.wb.model.pojo.computer.EnterpriseQueryForm">
+	select if(allClerks is null,0,allClerks) AS allClerks,
+	if(onlineClerks is null,0,onlineClerks) AS onlineClerks,
+	if(taxState is null,0,taxState) AS taxState,
+	if(settleNum is null,0,settleNum) AS settleNum
+	from 
+	(
+		select count(clerkId) AS allClerks,sum(clerkState) AS onlineClerks 
+		from 
+		(
+			SELECT bm.id AS clerkId,
+			if((TIMESTAMPDIFF(SECOND,bm.lastStamp,now())>#arg1#),#arg2#,#arg3#) AS clerkState
+			FROM biz_member bm join mnt_mngandusers mmd ON bm.id=mmd.userMemberId
+			WHERE mmd.mntMemberId=#creator#  AND mmd.state = #authState#
+		) rslt1
+	) rl1,
+	(
+		select 
+		sum(orgTaxState) AS taxState,
+		count(orgId) AS orgNum
+	    from 
+	    (
+			select 
+			if(temp.taxDate = #lisence#,1,0) AS orgTaxState,
+			temp.orgId AS orgId 
+			from  
+			(
+				select if(mot.ID is null,0,1) AS orgTaxState, 
+				boz.ID AS orgId,mot.taxDate AS taxDate
+				from biz_organization boz 
+				LEFT JOIN mnt_orgtax mot ON boz.id=mot.orgId 
+				LEFT JOIN accountingagency atay ON boz.ownerId = atay.userId
+				WHERE atay.mngId = #creator# AND mot.taxDate = #lisence# AND boz.enable = 1
+				union
+				select if(mot.ID is null,0,1) AS orgTaxState, 
+				boz.ID AS orgId,mot.taxDate AS taxDate
+				from biz_organization boz 
+				LEFT JOIN mnt_orgtax mot ON boz.id=mot.orgId 
+				LEFT JOIN accountingagency atay ON boz.ownerId = atay.userId
+				WHERE atay.mngId = #creator# AND boz.enable = 1
+			) temp group by orgId
+		) rslt
+		WHERE 1 = 1
+	) rl2,
+	(
+		select sum(result.isSettled) AS settleNum
+		from 
+		(
+			select boz.id AS orgId,
+			periodIsSettled(bab.Year,bab.months,#lisence#) AS isSettled
+			from biz_organization boz 
+			LEFT JOIN biz_accountbook bab ON boz.id=bab.orgId 
+			LEFT JOIN accountingagency ata ON boz.ownerId = ata.userId
+			WHERE boz.enable = 1 AND bab.enable = 1 AND bab.isDefault = 1 AND ata.mngId=#creator#
+		) result
+	) rl3,
+	(
+		select count(boz.ID) AS orgNum2
+		from biz_organization boz LEFT JOIN accountingagency atay ON boz.ownerId = atay.userId 
+		LEFT JOIN 
+		(
+			SELECT orgId AS orgId,max(offDate) AS offDate
+			FROM mnt_expenseDetail
+			WHERE 1=1 group by orgId order by orgId
+	    ) med ON med.OrgID = boz.ID
+		WHERE atay.mngId = #creator# AND boz.enable = 1 AND ( med.offDate <![CDATA[<=]]> #endDate# )
+	) rl4;
+	</select>
+	
+	<typeAlias alias="orgDetailListForMobile" type="com.wb.model.pojo.computer.OrgDetailDto"/>
+	<select id="findOrgDetailListForMobile" resultClass="orgDetailListForMobile" parameterClass="com.wb.model.pojo.computer.EnterpriseQueryForm">
+		select me.offDate,stl.*,tax.* 
+		from (
+			select rslt.*,ata.userName AS userName,ata.userTelphone AS userTelphone,if(vst.vchNum is null,0,vst.vchNum) AS vchNum,vst.stamp AS lastVch
+			from(
+				select boz.ID AS orgId,boz.Name AS orgName,bab.id AS bookId,bab.name AS bookName,bab.year AS year,bab.months AS months,boz.ownerId AS ownerId,boz.seqcode AS seqcode,boz.acronym AS acronym,periodIsSettled(bab.Year,bab.months,#lisence#) AS isSettled
+				from biz_organization boz LEFT JOIN biz_accountbook bab ON boz.id=bab.orgId 
+				WHERE boz.enable = 1 AND bab.enable = 1 AND bab.isDefault = 1
+			) rslt LEFT JOIN accountingagency ata ON rslt.ownerId = ata.userId
+			LEFT JOIN (
+		        select bab.id AS bookId,max(bv.stamp) AS stamp,COUNT(bv.id) AS vchNum
+		        from biz_accountbook bab join biz_voucher bv ON bab.id=bv.bookId
+		        WHERE bv.Gdate <![CDATA[<]]> #endDate# AND bv.Gdate <![CDATA[>=]]> #startDate#
+		        GROUP BY bab.id
+	        ) vst ON rslt.BookID = vst.bookId 
+			WHERE ata.mngId = #creator# 
+		) stl LEFT JOIN (
+			select * from (
+				select boz.id AS orgId2,mot.taxDate AS orgTaxPeriod,mot.stamp AS sendMsgDate,mot.amount AS orgTaxAmount,mot.taxDetail AS orgTaxDetail, if((mot.amount is not null or ( mot.isMsg = 1 ) ),1,0) AS orgTaxState,if((mot.isMsg is null or mot.isMsg = 0),0,1) AS isMsgState
+				from biz_organization boz LEFT JOIN mnt_orgtax mot ON boz.id=mot.orgId LEFT JOIN accountingagency atay ON boz.ownerId = atay.userId
+				WHERE atay.mngId = #creator# AND mot.taxDate = #lisence# AND boz.enable = 1
+				union
+				select boz.id AS orgId2,#lisence# AS orgTaxPeriod,null AS sendMsgDate,null AS orgTaxAmount,null AS orgTaxDetail, 0 AS orgTaxState,0 AS isMsgState
+				from biz_organization boz LEFT JOIN mnt_orgtax mot ON boz.id=mot.orgId LEFT JOIN accountingagency atay ON boz.ownerId = atay.userId
+				WHERE atay.mngId = #creator# AND boz.enable = 1
+			) temp group by orgId2
+		) tax ON stl.orgId = tax.orgId2
+		LEFT JOIN mnt_expenseDetail me ON me.orgId = stl.orgId 
+		WHERE 1=1
+		<isNotEmpty property="orgName"> AND ( stl.orgName like '%$orgName$%' || stl.acronym like '%$orgName$%' || stl.seqcode like '%$orgName$%' )</isNotEmpty>
+		<isNotEmpty property="fbUserName"> AND ( stl.userName like '%$fbUserName$%' || stl.userTelphone like '%$fbUserName$%' )</isNotEmpty>
+		<isNotEqual property="authState"   compareValue="-1"> AND isSettled = #authState# </isNotEqual>
+		<isNotEqual property="isAllSelect" compareValue="-1"> AND orgTaxState = #isAllSelect# </isNotEqual>
+		<isNotEqual property="isDeleted"   compareValue="-1"> AND isMsgState = #isDeleted# </isNotEqual>
+		order by convert(stl.orgName using gbk) asc limit #startRow#,#endRow# ;
+	</select>
+	
+	<select id="countOrgDetailListForMobile" resultClass="com.wb.model.pojo.computer.TrendDataDto" parameterClass="com.wb.model.pojo.computer.EnterpriseQueryForm">
+		select count(orgId) AS count, sum(vchNum) AS summary1 from (
+			select * from (
+				select rslt.*,ata.userName AS userName,ata.userTelphone AS userTelphone,if(vst.vchNum is null,0,vst.vchNum) AS vchNum,vst.stamp AS lastVch
+				from(
+					select boz.ID AS orgId,boz.Name AS orgName,bab.id AS bookId,bab.name AS bookName,bab.year AS year,bab.months AS months,boz.ownerId AS ownerId,boz.seqcode AS seqcode,boz.acronym AS acronym,periodIsSettled(bab.Year,bab.months,#lisence#) AS isSettled
+					from biz_organization boz LEFT JOIN biz_accountbook bab ON boz.id=bab.orgId 
+					WHERE boz.enable = 1 AND bab.enable = 1 AND bab.isDefault = 1
+				) rslt LEFT JOIN accountingagency ata ON rslt.ownerId = ata.userId
+				LEFT JOIN (
+			        select bab.id AS bookId,max(bv.stamp) AS stamp,COUNT(bv.id) AS vchNum
+			        from biz_accountbook bab join biz_voucher bv ON bab.id=bv.bookId
+			        WHERE bv.Gdate <![CDATA[<]]> #endDate# AND bv.Gdate <![CDATA[>=]]> #startDate#
+			        GROUP BY bab.id
+		        ) vst ON rslt.BookID = vst.bookId 
+				WHERE ata.mngId = #creator# 
+			) stl LEFT JOIN (
+				select * from (
+					select boz.id AS orgId2,mot.taxDate AS orgTaxPeriod,mot.stamp AS sendMsgDate,mot.amount AS orgTaxAmount,mot.taxDetail AS orgTaxDetail, if((mot.amount is not null or ( mot.isMsg = 1 ) ),1,0) AS orgTaxState,if((mot.isMsg is null or mot.isMsg = 0),0,1) AS isMsgState
+					from biz_organization boz LEFT JOIN mnt_orgtax mot ON boz.id=mot.orgId LEFT JOIN accountingagency atay ON boz.ownerId = atay.userId
+					WHERE atay.mngId = #creator# AND mot.taxDate = #lisence# AND boz.enable = 1
+					union
+					select boz.id AS orgId2,#lisence# AS orgTaxPeriod,null AS sendMsgDate,null AS orgTaxAmount,null AS orgTaxDetail, 0 AS orgTaxState,0 AS isMsgState
+					from biz_organization boz LEFT JOIN mnt_orgtax mot ON boz.id=mot.orgId LEFT JOIN accountingagency atay ON boz.ownerId = atay.userId
+					WHERE atay.mngId = #creator# AND boz.enable = 1
+				) temp group by orgId2
+			) tax ON stl.orgId = tax.orgId2
+			WHERE 1=1
+			<isNotEmpty property="orgName"> AND ( stl.orgName like '%$orgName$%' || stl.acronym like '%$orgName$%' || stl.seqcode like '%$orgName$%' )</isNotEmpty>
+			<isNotEmpty property="fbUserName"> AND ( stl.userName like '%$fbUserName$%' || stl.userTelphone like '%$fbUserName$%' )</isNotEmpty>
+			<isNotEqual property="authState" compareValue="-1"> AND isSettled = #authState# </isNotEqual>
+			<isNotEqual property="isAllSelect" compareValue="-1"> AND orgTaxState = #isAllSelect# </isNotEqual>
+			<isNotEqual property="isDeleted" compareValue="-1"> AND isMsgState = #isDeleted# </isNotEqual>
+		) clerkInfo
+	</select>
+</sqlMap>

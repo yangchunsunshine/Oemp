@@ -1,0 +1,111 @@
+package com.wb.component.computer.sendMessageManager.controller;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.wb.component.computer.sendMessageManager.service.ISendMessageService;
+import com.wb.framework.commonResponse.AjaxAction;
+import com.wb.framework.commonUtil.PageUtil;
+import com.wb.framework.commonUtil.PageUtil.PageInfo;
+import com.wb.model.entity.computer.MntMember;
+
+/**
+ * 
+* @ClassName: SendMessageAction 
+* @Description: 发短信控制类
+* @author hechunyang 
+* @date 2016年10月17日 下午1:44:07 
+ */
+
+@Controller
+@RequestMapping(value = "sendmessage")
+public class SendMessageAction extends AjaxAction {
+    
+	/**
+     * 日志
+     */
+	private static final Logger logger = Logger.getLogger(SendMessageAction.class);
+    
+	@Autowired
+	private ISendMessageService sendMessageService;
+	
+	/**
+	 * 
+	* @Title: gotoMemberRegister 
+	* @Description: 跳转发短信页面
+	* @param @return
+	* @date 2016年10月17日 下午2:23:22 
+	* @author hechunyang 
+	* @return String 返回类型 
+	* @throws
+	 */
+	@RequestMapping(value = "forward/gotoSendMessageMain", method = RequestMethod.GET)
+	public String gotoMemberRegister(HttpServletRequest request,HttpSession session){
+		MntMember member = (MntMember)session.getAttribute("userInfo"); 
+		int num=sendMessageService.getNumCount(member.getId());
+		request.setAttribute("num", num);
+		request.setAttribute("orgName", member.getOrgName());
+		return "sendMessage/sendMessageMain";
+	}
+	
+	
+	/***
+	* @Title: showOrangizMessage 
+	* @Description: 登陆之后查看这个代理公司旗下的所有小微企业和代理公司
+	* @param @param request
+	* @param @param session
+	* @param @param info
+	* @param @return
+	* @date 2016年10月17日 下午2:37:16 
+	* @author hechunyang 
+	* @return Map<String,Object> 返回类型 
+	* @throws
+	 */
+	@RequestMapping(value = "forward/showorganization", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String,Object> showOrangizMessage(HttpServletRequest request,HttpSession session,PageInfo info){
+	    MntMember member = (MntMember)session.getAttribute("userInfo"); 
+		PageUtil util = sendMessageService.getAllOrganization(member.getId(), info);
+		return util.initResult();
+	}
+	
+	/**
+	 * 
+	* @Title: showorganizationByChose 
+	* @Description: 根据条件查询公司
+	* @param @param request
+	* @param @param session
+	* @param @return
+	* @date 2016年10月18日 上午11:13:24 
+	* @author hechunyang 
+	* @return Map<String,Object> 返回类型 
+	* @throws
+	 */
+	@RequestMapping(value = "forward/showorganizationByChose", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String,Object> showorganizationByChose(HttpServletRequest request,HttpSession session,String orgName){
+		MntMember member = (MntMember)session.getAttribute("userInfo"); 
+		PageInfo info=new PageInfo();
+		info.setRows(50);
+		info.setPage(1);
+		PageUtil util=null;
+		try {
+			util = sendMessageService.getAllOrganizationByChose(member.getId(), info,URLDecoder.decode(orgName,"UTF-8"));
+			//return util.initResult();
+		} catch (UnsupportedEncodingException e) {
+			logger.debug("orgName="+orgName);
+		}
+		return util.initResult();
+	}
+}

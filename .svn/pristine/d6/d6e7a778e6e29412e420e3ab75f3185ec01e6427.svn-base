@@ -1,0 +1,208 @@
+package com.wb.component.computer.businessManage.controller;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.wb.component.computer.processManage.service.IProcessManageService;
+import com.wb.framework.commonResponse.AjaxAction;
+import com.wb.framework.commonUtil.PageUtil;
+import com.wb.framework.commonUtil.PageUtil.PageInfo;
+import com.wb.framework.commonUtil.calendar.DateUtil;
+
+@Controller
+@RequestMapping(value = "business")
+public class Business extends AjaxAction
+{
+    private static final Logger logger = Logger.getLogger(Business.class);
+    
+    
+    
+    /**
+     * 流程管理Service层实例
+     */
+    @Autowired
+    @Qualifier("processManageService")
+    private IProcessManageService processManageService;
+    
+    /**
+     * 业务管理模块-跳转页面
+     * 
+     */
+    @RequestMapping(value = "forward/gotoBusinessView", method = RequestMethod.GET)
+    public String gotoBusinessView(HttpServletRequest request)
+    {
+        request.setAttribute("startDate", DateUtil.getCurYearFirstDate());
+        request.setAttribute("endDate", DateUtil.getPrevTaxDate());
+        //pageName：页面名称
+        String pageName =request.getParameter("pageName");
+        if("progress".equals(pageName)){//进度查询
+            return "business/clerkFeeList";
+        }else if("model".equals(pageName)){
+        	 //业务模板
+        	 return "business/businessModel";
+        }else{
+        	logger.info("-------没有该页面");
+        	return "";
+        }
+        
+    }
+    
+    /**
+    * @Title: gotoBusinessModel 
+    * @Description: 跳转到业务模板
+    * @param @param request
+    * @param @return
+    * @author hechunyang 
+    * @return String    返回类型 
+    * @throws
+     */
+    @RequestMapping(value="forward/gotoBusinessModel",method=RequestMethod.GET)
+    public String gotoBusinessModel(HttpServletRequest request){
+    	return "business/businessModel";
+    }
+    
+    
+   /**
+    * 
+   * @Title: gotoBusinessModelNode 
+   * @Description: TODO(这里用一句话描述这个方法的作用) 
+   * @param @param modelId 模板的id
+   * @param @param request
+   * @param @return
+   * @author hechunyang 
+   * @return String    返回类型 
+   * @throws
+    */
+    @RequestMapping(value="forward/gotoBusinessModelNode",method=RequestMethod.GET)
+    public String gotoBusinessModelNode(String modelId,HttpServletRequest request){
+    	
+    	return "business/businessModel";
+    }
+   
+    /***
+    * @Title: gotoBusinesslNode 
+    * @Description: 专供跳页面使用 
+    * @param @param modelId
+    * @param @param request
+    * @param @return
+    * @author hechunyang 
+    * @return String    返回类型 
+    * @throws
+     */
+    @RequestMapping(value="forward/gotoBusinesslNode",method=RequestMethod.GET)
+    public String gotoBusinesslNode(String processTmpId,HttpServletRequest request){
+    	request.setAttribute("processTmpId", processTmpId);
+    	return "business/showNode";
+    }
+    
+    /**
+    * @Title: gotoBusinessModelShowNode 
+    * @Description: TODO(这里用一句话描述这个方法的作用) 
+    * @param @param processTmpId 模板id
+    * @param @param request
+    * @param @return
+    * @author hechunyang 
+    * @return String    返回类型 
+    * @throws
+     */
+    @RequestMapping(value="forward/gotoBusinessModelShowNode",method=RequestMethod.POST)
+    @ResponseBody
+    public Map<String, Object> gotoBusinessModelShowNode(@RequestBody String processTmpId,HttpServletRequest request){
+    	PageInfo pageInfo=new PageInfo(1, 50);
+    	 final PageUtil util =processManageService.getModelNodeList(processTmpId,pageInfo);
+    	return util.initResult();
+    }
+    
+    
+    /****
+     * 
+    * @Title: gotoBusinessModelAddNode 
+    * @Description: 弹出框增加节点 
+    * @param @param processTmpId
+    * @param @param request
+    * @param @return
+    * @author hechunyang 
+    * @return Map<String,Object>    返回类型 
+    * @throws
+     */
+    @RequestMapping(value="forward/gotoBusinessModelAddNode",method=RequestMethod.POST)
+    @ResponseBody
+    public Map<String, Object> gotoBusinessModelAddNode( String processTmpId,HttpServletRequest request){
+    	PageInfo pageInfo=new PageInfo(1, 10);
+    	final PageUtil util =processManageService.getModelNodeList(processTmpId,pageInfo);
+    	return util.initResult();
+    }
+    
+    /**
+    * @Title: saveNode 
+    * @Description: TODO(这里用一句话描述这个方法的作用) 
+    * @param @param id
+    * @param @param request
+    * @param @return
+    * @author hechunyang 
+    * @return Map<String,Object>    返回类型 
+    * @throws
+     */
+    @RequestMapping(value="forward/saveNode",method=RequestMethod.POST)
+    public  Map<String, Object> saveNode(String id,HttpServletRequest request){
+    	Map<String, Object> result = new HashMap<String, Object>();
+    	processManageService.addNodeInfo(id);
+    	return result;
+    }
+    
+    
+    /***
+     * 
+    * @Title: gotoBusinesslAddNode 
+    * @Description: 增加节点的小框 
+    * @param @param id
+    * @param @param request
+    * @param @return
+    * @author hechunyang 
+    * @return Map<String,Object>    返回类型 
+    * @throws
+     */
+    @RequestMapping(value="forward/gotoBusinesslAddNode",method=RequestMethod.GET)
+    public  String gotoBusinesslAddNode(String value,HttpServletRequest request){
+    	request.setAttribute("value", value);
+    	return "business/addNode";	
+    }
+    
+    /**
+    * @Title: gotoBusinesslAddNode 
+    * @Description:修改业务模板跳转
+    * @param @param value
+    * @param @param request
+    * @param @return
+    * @author hechunyang 
+    * @return String    返回类型 
+    * @throws
+     */
+    @RequestMapping(value="forward/gotoUpdateProceTemp",method=RequestMethod.GET)
+    public  String gotoUpdateProceTemp(HttpServletRequest request,Integer processTmpId){
+    	request.setAttribute("processTmpId", processTmpId);
+    	List<Map<String,Object>> mntProcessInfoTmp=processManageService.getProcessTemp(processTmpId);
+    	request.setAttribute("processInfoTmp", mntProcessInfoTmp);
+    	return "business/updateProceTemp";	
+    }
+    
+    @RequestMapping(value="forward/gotoHelpTogether",method=RequestMethod.GET)
+    public  String gotoHelpTogether(HttpServletRequest request,Integer processTmpId,Integer nodeId){
+    	request.setAttribute("processTmpId", processTmpId);
+    	request.setAttribute("nodeId", nodeId);
+    	return "business/updateTogether";	
+    }
+    
+}

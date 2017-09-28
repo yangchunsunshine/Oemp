@@ -1,0 +1,277 @@
+package com.wb.component.computer.businessManage.service.imp;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpSession;
+
+import org.apache.log4j.Logger;
+import org.hibernate.Query;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.wb.component.computer.businessManage.service.IProcessInfoManageService;
+import com.wb.framework.commonDao.BaseDao;
+import com.wb.framework.commonUtil.PageUtil;
+import com.wb.framework.commonUtil.PageUtil.PageInfo;
+import com.wb.model.entity.computer.MntMember;
+
+/**
+ * 流程管理Service层实现
+ * 
+ * @author 郑炜
+ * @version [版本号, 2016-5-12]
+ * @see [相关类/方法]
+ * @since [产品/模块版本]
+ */
+@Service(value = "processInfoManageService")
+public class ProcessInfoManageService extends BaseDao implements
+		IProcessInfoManageService {
+	/**
+	 * 日志服务
+	 */
+	private static final Logger log = Logger
+			.getLogger(ProcessInfoManageService.class);
+
+	/*
+	 * 获取流程列表 (non-Javadoc)
+	 * 
+	 * @see
+	 * com.wb.component.computer.businessManage.service.IProcessInfoManageService
+	 * #getProcessList(int, java.lang.String, java.lang.String,
+	 * java.lang.String, com.wb.framework.commonUtil.PageUtil.PageInfo)
+	 */
+	@Override
+	public PageUtil getProcessList(int mngId, String processName,
+			String cusName, String conType,boolean isAdmin,int adminId, PageInfo info) {
+		final StringBuffer sql = new StringBuffer();
+		if(isAdmin){ //管理员查询
+			sql.append(" SELECT");
+			sql.append(" pro.id AS proId,pro.mngId AS orgId,");
+			sql.append(" pro.processName AS processName,");
+			sql.append(" contract.contractType AS contractType,");
+			sql.append(" pro.canUse AS canUse,pro.id AS opera ,");
+			sql.append(" mMem.orgName AS orgName") ;
+			sql.append(" FROM mnt_processInfo pro");
+			sql.append(" LEFT JOIN mnt_customContract contract on pro.cusContractId = contract.id"); // 关联合同
+			sql.append(" LEFT JOIN mnt_member mMem on pro.mngId = mMem.id"); //关联所属公司
+			sql.append(" WHERE ");
+			sql.append(" pro.isDelete = 0 ");
+			sql.append(" AND pro.adminId ='"+adminId+"'");
+			if (processName != null && !"".equals(processName)) {
+				sql.append(" AND pro.processName LIKE '%" + processName + "%'");
+			}
+			if (cusName != null && !"".equals(cusName)) {
+				sql.append(" AND contract.cusName LIKE '%" + cusName + "%'");
+			}
+
+			if (conType != null && !"".equals(conType) && !"-1".equals(conType)) {
+				sql.append(" AND contract.contractType ='" + conType + "'");
+			}
+			return this.findPageBySqlQuery(sql.toString(), info.getPage(),
+					info.getRows());
+		}else{//非管理员查询
+			//根据用户id查询所有环节 的流程数据
+			sql.append(" SELECT");
+			sql.append(" pro.id AS proId,pro.mngId AS orgId,");
+			sql.append(" pro.processName AS processName,");
+			sql.append(" contract.contractType AS contractType,");
+			sql.append(" pro.canUse AS canUse,pro.id AS opera");
+			sql.append(" FROM mnt_processInfo pro");
+			sql.append(" INNER JOIN mnt_customContract contract"); // 关联合同
+			sql.append(" WHERE pro.cusContractId = contract.id");
+			sql.append(" AND pro.isDelete = 0 ");
+			sql.append(" AND pro.id in(SELECT processId FROM mnt_nodeInfo node WHERE node.adminId = '"+adminId+"'  GROUP BY processId)");
+			if (processName != null && !"".equals(processName)) {
+				sql.append(" AND pro.processName LIKE '%" + processName + "%'");
+			}
+			if (cusName != null && !"".equals(cusName)) {
+				sql.append(" AND contract.cusName LIKE '%" + cusName + "%'");
+			}
+
+			if (conType != null && !"".equals(conType) && !"-1".equals(conType)) {
+				sql.append(" AND contract.contractType ='" + conType + "'");
+			}
+			return this.findPageBySqlQuery(sql.toString(), info.getPage(),
+					info.getRows());
+		}
+		
+	}
+
+	/**
+	 * 获取环节列表
+	 */
+	@Override
+	public PageUtil getNodeList(String processId, PageInfo info) {
+		final StringBuffer sql = new StringBuffer();
+		sql.append(" select node.id as nodeId,node.processId as processIds,node.nodeName,node.nodeStatus,node.orderSeq ,node.beforeNodeId,node.afterNodeId,node.orhelp as orHelp ,node.adminId,member.Name from mnt_nodeInfo node,biz_member member ");
+		sql.append(" where node.processId = '" + processId + "' ");
+		sql.append(" and node.adminId = member.id");
+		sql.append(" ORDER BY node.orderSeq ");
+		return this.findPageBySqlQuery(sql.toString(), info.getPage(),
+				info.getRows());
+	}
+
+	/*
+	 * 更新流程环节状态
+	 */
+
+	@Override
+	public int updateNode(String processId, String nodeId, String status) {
+		try {
+
+			final StringBuffer sql = new StringBuffer();
+			sql.append(" UPDATE mnt_nodeInfo ");
+			sql.append(" SET nodeStatus=?");
+			sql.append(" WHERE processId=?");
+			sql.append(" and id=?");
+			final Query query = this.getSession()
+					.createSQLQuery(sql.toString());
+			query.setParameter(0, status);
+			query.setParameter(1, processId);
+			query.setParameter(2, nodeId);
+			query.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+			TransactionAspectSupport.currentTransactionStatus()
+					.setRollbackOnly();
+			return 1;
+		}
+		return 0;
+	}
+
+	
+
+	// 根据流程id和环节id查询协同人员和下个处理人
+	@Override
+	public PageUtil getDealNodeMan(String processId,String NodeId, PageInfo info) {
+		final StringBuffer sql = new StringBuffer();
+		sql.append(" select node.beforeNodeId as beforeNodeId,node.afterNodeId as afterNodeId from mnt_nodeInfo node");
+		sql.append("  where node.processId = '" + processId + "' and id ='"+NodeId+"'");
+		System.out.println("查询环节sql："+sql.toString());
+		return this.findPageBySqlQuery(sql.toString(), info.getPage(),
+				info.getRows());
+	}
+
+	@Override
+	public PageUtil getBeforeMan(String processId,String nodeId, String beforeNodeId,
+			PageInfo info) {
+		final StringBuffer sql = new StringBuffer();
+		sql.append(" select node.adminId ,member.Name,member.Telphone from mnt_nodeInfo node ,biz_member member");
+		
+		sql.append(" where node.adminId = member.id and node.processId = '" + processId + "' and beforeNodeId ='"+beforeNodeId+"'");
+		sql.append(" and node.id !='"+nodeId+"'");
+		System.out.println("查询协同人员sql："+sql.toString());
+		return this.findPageBySqlQuery(sql.toString(), info.getPage(),
+				info.getRows());
+	}
+
+	@Override
+	public PageUtil getAfterMan(String processId, String afterNodeId,
+			PageInfo info) {
+		final StringBuffer sql = new StringBuffer();
+		sql.append(" select node.adminId ,member.Name,member.Telphone  from mnt_nodeInfo node,biz_member member");
+		sql.append("  where node.adminId = member.id and node.processId = '" + processId + "' and node.id ='"+afterNodeId+"'");
+		System.out.println("查询下个执行人sql："+sql.toString());
+		return this.findPageBySqlQuery(sql.toString(), info.getPage(),
+				info.getRows());
+	}
+	
+	//获取部门下的环节列表
+	@Override
+	public PageUtil getDepartmentNodeList(String processId,
+			String departmentId,boolean isAdmin,int adminId, PageInfo info) {
+		final StringBuffer sql = new StringBuffer();
+		sql.append(" select node.id as nodeId,node.processId as processIds,node.nodeName,node.nodeStatus,node.orderSeq , ");
+		sql.append(" node.adminId ,");
+		sql.append(" member.Name, ");
+		sql.append(" member.departmentId ");
+		sql.append(" from ");
+		sql.append(" mnt_nodeInfo node ");
+		sql.append(" ,biz_member member ");
+		sql.append(" where node.nodeStatus=0 ");
+		sql.append(" and node.adminId = member.id ");
+		sql.append(" and node.processId = '" + processId + "'");
+		//sql.append(" and member.departmentId = '" + departmentId + "'");
+		isAdmin = false ;
+		if(isAdmin){ //管理员可以指派所有环节		
+			
+		}else{ //非管理员只能指派自己的环节
+			sql.append(" and node.adminId = '"+adminId+"'");
+		}
+		return this.findPageBySqlQuery(sql.toString(), info.getPage(),
+				info.getRows());
+	}
+
+	
+	@Override
+	public PageUtil getDepartmentUserList(String departmentId,String name , String tel,boolean isAdmin,int adminId, PageInfo info) {
+		final StringBuffer sql = new StringBuffer();
+		
+		sql.append(" select id,Name,Telphone,qq ,Email,sex ");
+		sql.append(" from ");
+		sql.append(" biz_member member ");
+		sql.append(" where member.Enable=1 ");//必须是有效用户
+		sql.append(" and member.departmentId = '" + departmentId + "'");
+		if(name!=null&&!"".equals(name)){
+			sql.append(" and member.name = '" + name + "'");
+		}
+		if(tel!=null&&!"".equals(tel)){
+			sql.append(" and member.telphone = '" + tel + "'");
+		}
+		return this.findPageBySqlQuery(sql.toString(), info.getPage(),
+				info.getRows());
+	}
+	//重新指派环节
+	@Override
+	public int updateReAppoint(String processId, String nodeId, String id) {
+		try {
+
+			final StringBuffer sql = new StringBuffer();
+			sql.append(" UPDATE mnt_nodeInfo ");
+			sql.append(" SET adminId=?");
+			sql.append(" WHERE processId=?");
+			sql.append(" and id=?");
+			
+			final Query query = this.getSession()
+					.createSQLQuery(sql.toString());
+			query.setParameter(0, id);
+			query.setParameter(1, processId);
+			query.setParameter(2, nodeId);
+			query.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+			TransactionAspectSupport.currentTransactionStatus()
+					.setRollbackOnly();
+			return 1;
+		}
+		return 0;
+	}
+
+	@Override
+	public PageUtil getMemberInfo(String id, PageInfo info) {
+		final StringBuffer sql = new StringBuffer();
+		sql.append(" select member.id ,member.Name,member.Telphone from biz_member member");
+		sql.append("  where  member.id  = '" + id + "'");
+		System.out.println("查询biz_member 的sql："+sql.toString());
+		return this.findPageBySqlQuery(sql.toString(), info.getPage(),
+				info.getRows());
+	}
+	
+	@Override
+	public PageUtil getMemberInfoByTel(String tel, PageInfo info) {
+		final StringBuffer sql = new StringBuffer();
+		sql.append(" select member.id ,member.Name,member.Telphone from biz_member member");
+		sql.append("  where  member.Telphone  = '" + tel + "'");
+		System.out.println("查询biz_member 的sql："+sql.toString());
+		return this.findPageBySqlQuery(sql.toString(), info.getPage(),
+				info.getRows());
+	}
+
+	
+
+}
