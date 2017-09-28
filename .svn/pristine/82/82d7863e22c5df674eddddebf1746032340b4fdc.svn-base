@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>新闻</title>
+<link href="css/syle_new.css" rel="stylesheet" type="text/css" />
+<link href="css/style.css" rel="stylesheet" type="text/css" />
+<link href="css/new_css.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<!--******************************************top开始******************************************-->
+<div class="top">
+  <div class="header">
+        <a href="http://www.weibaobeijing.com"><img src="image/header_logo.png" style=" float:left;margin-top:13px;" width="120" /></a>
+        <div class="top_01">
+        	<a><img src="image/top_ico_007.png"/>热线：4000-110-543</a>	
+        	<a><img src="image/top_ico_006.png"/>QQ群：292577932</a>	
+        	<a href="http://dlsw.baidu.com/sw-search-sp/soft/9d/14744/ChromeStandalone_46.0.2490.86_Setup.1447296650.exe"><img src="image/top_ico_005.png"/>下载google浏览器</a>	
+        	<a href="se_Technical.html"><img src="image/top_ico_004.png"/>视频教材</a>	
+        	<a href="microbankManual.doc" class="ico_download"><img src="image/top_ico_003.png"/>下载操作手册</a>	
+        	<a href="sc_jobs.html"><img src="image/top_ico_002.png"/>招聘英才</a>	
+        	<a href="sc_cooperation.html"><img src="image/top_ico_001.png"/>合作伙伴</a>	
+        	<a href="sc_Investment.html"><img src="image/top_ico_008.png"/>投资微宝</a>	
+        	<a href="news_3.html"><img src="image/top_ico_009.png"/>行业动态</a>	
+        </div>
+        <div class="top_02">
+            <div class="main_menu">
+                <ul>
+                    <li><a href="index.html" class="menu_hover">首页</a></li>
+                    <li><a href="sc_Online.html">在线财务</a></li>
+                    <li><a href="sc_Generation.html">代小宝</a></li>
+                    <li><a href="http://www.weibaochuangye.com">服务宝</a></li>
+                    <li><a href="sc_Insales.html">进销存</a></li>
+                    <li><a href="sc_contact.html">联系我们</a></li>
+                    <li><a href="sc_Aboutus.html">关于微宝</a></li>
+                </ul>
+            </div> 
+            <div class="head_button">
+            	<a href="sc_land.html" class="button_l">登录</a>
+            	<a href="sc_land.html" class="button_d">立即免费体验</a>
+            	<a href="sc_land.html" class="button_z">立即免费注册</a>
+            </div>          
+        </div>
+    </div>
+</div>
+<!--******************************************top结束******************************************-->
+<div class="sc_banner_10" style="margin-top:105px;"></div>
+<div class="neirong">
+	<div class="neirong_top">
+    	<h1>喜讯 | 微宝公司成功进军四川市场啦！</h1>
+        <div class="biaoqian">
+        	<span>发布时间：2016-07-31</span><div class="biaoqian_1"><a href="news.html">公司新闻</a></div>
+        </div>
+    </div>
+    <div class="nr_xia">
+    	<p> 2016年7月30日，《“互联网+”代理记账会议-成都站》在四川省成都市顺利召开，这是继广州、杭州、石家庄、郑州、青岛后的又一大盛会，全场爆满。现场，<span style="color:#F03">北京微宝网络科技有限公司与成都星辉财务咨询有限公司、成都链企企业服务有限公司、四川兴瑞税务所事务所有限责任公司一分公司等4家公司成功签署合作协议，</span>为微宝进军四川市场成功迈向了第一步。</p>
+    	<div class="pic_box">
+        	<img src="image/newspic/pic029.jpg" width="100%" />
+            <p>中国财政科学院韩晓朋博士 发表关于《互联网+环境下代理记账管理会计功能的拓展》重要讲话</p>
+       </div>
+       <p>《“互联网+”代理记账会议》由中国总会计师协会，中国会计师协会代理记账行业分会主办，北京微宝网络科技有限公司作为总会协代理记账行业分会的副会长单位，一直积极筹备参与各地会议。本次会议齐聚四川各地代理记账公司、财税服务公司、会计师事务所等业内代表，一起围绕互联网+环境下代理记账行业的转型与升级，业务拓展、行业规范建设等议题展开热烈讨论。</p> 
+        
+      <div class="pic_box">
+        	<img src="image/newspic/pic030.jpg" width="100%" />
+             <p>微宝公司创始人兼CEO 王兆亭先生列席本次大会</p>
+      </div>
+     <p>作为中国第一家提供永久免费财务软件和代理公司工作平台服务商，北京微宝网络科技有限公司一直致力于通过互联网+的手段服务各代理记账公司，解决代理公司实际遇到的收费难、成本高、效率低等经营问题，与代账公司一起创造财富。微宝公司旗下的在线财务、代理平台、移动微宝等产品更是为代理公司量身定制，形成一整套完整服务体系。目前微宝产品已遍布北京、上海、深圳、广东、山东、山西、云南、四川等省市，我们也将一如既往地打造最优秀的免费财务软件，向代账公司提供最佳的服务方案！</p>
+     
+     <div class="pic_box">
+        	<img src="image/newspic/pic031.jpg" width="100%" />
+             <p>参会的四川成都各界代理记账代表</p>
+      </div>
+      
+      <div class="pic_box">
+        	<img src="image/newspic/pic032.jpg" width="100%" />
+             <p>北京微宝网络科技有限公司副总裁王绍伟先生正在给参会代表进行激情讲解</p>
+      </div>
+      
+      <div class="pic_box">
+        	<img src="image/newspic/pic033.jpg" width="100%" />
+             <p>抽奖环节，客户获奖后上台领奖情不自禁的喜悦</p>
+      </div>
+      
+      <div class="pic_box">
+        	<img src="image/newspic/pic034.jpg" width="100%" />
+             <p>可爱微宝人，微宝铁军团队展风姿！</p><br /><br /><br />
+      </div>
+    </div>
+</div>
+
+</body>
+</html>

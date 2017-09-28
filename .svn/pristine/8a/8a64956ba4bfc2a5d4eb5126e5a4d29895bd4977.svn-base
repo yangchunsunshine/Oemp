@@ -1,0 +1,26 @@
+package com.wb.model.pojo.mobile;
+
+public class LoginInfo {
+    private String telphone;
+    private String iosDeviceToken;
+    private String androidDeviceToken;
+	public String getTelphone() {
+		return telphone;
+	}
+	public void setTelphone(String telphone) {
+		this.telphone = telphone;
+	}
+	public String getIosDeviceToken() {
+		return iosDeviceToken;
+	}
+	public void setIosDeviceToken(String iosDeviceToken) {
+		this.iosDeviceToken = iosDeviceToken;
+	}
+	public String getAndroidDeviceToken() {
+		return androidDeviceToken;
+	}
+	public void setAndroidDeviceToken(String androidDeviceToken) {
+		this.androidDeviceToken = androidDeviceToken;
+	}
+
+}

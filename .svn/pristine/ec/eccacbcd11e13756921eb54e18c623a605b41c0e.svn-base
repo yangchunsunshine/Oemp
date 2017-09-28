@@ -1,0 +1,48 @@
+package com.wb.component.computer.businessManage.service;
+
+
+import com.wb.framework.commonUtil.PageUtil;
+import com.wb.framework.commonUtil.PageUtil.PageInfo;
+
+/**
+ * 流程管理Service层接口
+ * 
+ */
+public interface IProcessInfoManageService
+{
+    /**
+     * 获取流程列表
+     * 
+     */
+    PageUtil getProcessList(int mngId, String processName, String cusName,String conType,boolean isAdmin,int adminId, PageInfo info);
+    
+    
+    /**
+     * 获取流程环节
+     * 
+     */
+    PageUtil getNodeList (String processId, PageInfo info);
+    
+    int updateNode(String processId ,String nodeId,String status);
+    
+    PageUtil getDealNodeMan(String processId,String NodeId,PageInfo info);
+    
+    PageUtil getBeforeMan(String processId,String nodeId,String beforeNodeId,PageInfo info);
+    
+    PageUtil getAfterMan(String processId,String afterNodeId,PageInfo info);
+    //获取该部门下的环节
+    PageUtil getDepartmentNodeList (String processId, String departmentId ,boolean isAdmin ,int adminId,PageInfo info);
+    
+  //获取该部门下的所有员工
+    PageUtil getDepartmentUserList (String departmentId ,String name ,String tel ,boolean isAdmin ,int adminId,PageInfo info);
+    
+    //重新指派环节
+    int updateReAppoint(String processId ,String nodeId,String id);
+    
+    //根据id 查询biz_memeber表
+    PageUtil getMemberInfo(String id,PageInfo info);
+    
+  //根据电话话号码 查询biz_memeber表
+    PageUtil getMemberInfoByTel(String id,PageInfo info);
+    
+}

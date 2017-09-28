@@ -1,0 +1,18 @@
+package com.wb.component.mobile.pushMessage.job;
+
+import java.util.ArrayList;
+import java.util.Map;
+
+import org.hibernate.Criteria;
+import org.hibernate.Query;
+
+import com.wb.model.entity.computer.MntMember;
+
+public class Job {
+	/*
+	 * wangyanlong
+	 */
+	public void initPower() {
+		
+	}
+}

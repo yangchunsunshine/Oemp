@@ -1,0 +1,12 @@
+*{padding:0;margin:0; border:0px;}
+body{font-family:verdana,arial,tahoma;font-size:12px;color:#333}
+img{border:0}
+
+/* ”—«È¡¥Ω” */
+.focus{width:755px;height:130px; padding:10px 25px; position:relative;float:center;}
+.f426x240{width:755px;height:130px; padding:10px 25px;overflow:hidden}
+.f426x240 img{ border:none;}
+.rslides{width:100%;position:relative;list-style:none;padding:0}
+.rslides_nav{height:51px;width:31px;position:absolute;-webkit-tap-highlight-color:rgba(0,0,0,0);top:50%;left:0;opacity:0.5;text-indent:-9999px;overflow:hidden;text-decoration:none;background:url(../image/button_left.png);margin-top:-38px}
+.rslides_nav:active{opacity:1.0}
+.rslides_nav.next{left:auto;background:url(../image/button_right.png);right:0}
